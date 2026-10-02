@@ -2,300 +2,386 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>たのしい かんじ れんしゅう（1・2ねん）</title>
-
-  <!-- Embedded SVG Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23ff9800'/><circle cx='50' cy='50' r='40' fill='%23fff3e0'/><text x='50' y='68' font-size='55' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23e65100'>文</text></svg>">
-
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1ねんせいの かんじ れんしゅう</title>
   
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23ff9800%22/><text y=%2270%22 x=%2210%22 font-size=%2275%22 fill=%22white%22 font-family=%22sans-serif%22 font-weight=%22bold%22>漢</text></svg>">
+
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: "Hiragino Kaku Gothic ProN", "メイリオ", sans-serif;
-      touch-action: manipulation;
-      user-select: none;
-      -webkit-user-select: none;
+      background-color: #eef7ff;
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #2c3e50;
+      font-size: 20px;
+      margin: 0 0 12px 0;
+      text-align: center;
+    }
+    
+    .config-panel {
+      background: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 440px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 8px;
+      align-items: center;
+    }
+    .config-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+    }
+    select {
+      font-size: 13px;
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 2px solid #4caf50;
+      background-color: #f9f9f9;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    /* Cross-hair grid helper line style for kanji practice boxes */
-    .canvas-grid-bg {
-      background-image: 
-        linear-gradient(to right, #cbd5e1 1px, transparent 1px),
-        linear-gradient(to bottom, #cbd5e1 1px, transparent 1px);
-      background-size: 50% 50%;
-      background-position: center;
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
     }
 
-    .canvas-box {
+    .badge-container {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+    }
+    .badge-term { background-color: #00bcd4; }
+    .badge-mode { background-color: #9c27b0; }
+    .badge-type { background-color: #ff9800; }
+
+    .question-text {
+      font-size: 19px;
+      margin: 8px 0 16px;
+      color: #2c3e50;
+      font-weight: bold;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.4;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .option-btn {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 0 #388e3c;
+      transition: all 0.1s;
+    }
+    .option-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #388e3c;
+    }
+
+    .canvas-flex-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .canvas-wrapper {
+      position: relative;
+      width: 140px;
+      height: 140px;
+    }
+    canvas {
+      border: 3px solid #ffb74d;
+      border-radius: 12px;
+      background-color: #fffde7;
       touch-action: none;
+      cursor: crosshair;
+    }
+    .canvas-guide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 140px; height: 140px;
+      pointer-events: none;
+    }
+    .canvas-guide::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      border-top: 1px dashed #ffd54f;
+    }
+    .canvas-guide::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 0; bottom: 0;
+      border-left: 1px dashed #ffd54f;
     }
 
-    .active-bounce:active {
-      transform: scale(0.95);
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+    }
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: none;
+    }
+    .btn-clear { background-color: #888; color: white; }
+    .btn-show { background-color: #0288d1; color: white; }
+    .btn-next {
+      background-color: #e91e63;
+      color: white;
+      padding: 12px 24px;
+      font-size: 17px;
+      border-radius: 25px;
+      width: 100%;
+    }
+
+    .answer-box {
+      background-color: #e8f5e9;
+      border: 2px dashed #4caf50;
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 8px;
+      display: none;
+    }
+    .answer-kanji {
+      font-size: 42px;
+      color: #2e7d32;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin-top: 2px;
+    }
+
+    .result-msg {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 8px 0;
+      min-height: 28px;
     }
   </style>
 </head>
-<body class="bg-amber-50 min-h-screen text-slate-800 pb-10">
+<body>
 
-  <header class="bg-amber-400 border-b-4 border-amber-500 shadow-md py-3 px-4 text-center sticky top-0 z-10">
-    <div class="max-w-md mx-auto flex items-center justify-between">
-      <h1 class="text-xl sm:text-2xl font-black text-amber-950 tracking-wider flex items-center gap-2">
-        <span class="text-2xl sm:text-3xl">✏️</span>
-        <span>かんじ れんしゅう</span>
-      </h1>
-      <span class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">1・2ねんせい</span>
+  <h1>小学1ねんせい 漢字ドリル</h1>
+
+  <div class="config-panel">
+    <div class="config-group">
+      はんい:
+      <select id="term-select" onchange="filterQuestions()">
+        <option value="all">すべて（全80字）</option>
+        <option value="1">1がっき（かんたん）</option>
+        <option value="2">2がっき（ふつう）</option>
+        <option value="3">3学期（むずかしい）</option>
+      </select>
     </div>
-  </header>
+    <div class="config-group">
+      モード:
+      <select id="mode-select" onchange="filterQuestions()">
+        <option value="reading">読みもんだい</option>
+        <option value="writing">書きもんだい</option>
+      </select>
+    </div>
+  </div>
 
-  <main class="max-w-md mx-auto px-4 mt-4">
+  <div class="card">
+    <div class="badge-container">
+      <span id="badge-term" class="badge badge-term">全学期</span>
+      <span id="badge-mode" class="badge badge-mode">読み</span>
+      <span id="badge-type" class="badge badge-type">単字</span>
+    </div>
 
-    <!-- Filter & Mode Card -->
-    <section class="bg-white rounded-2xl p-3 shadow-sm border-2 border-amber-200 mb-4 space-y-3">
-      <!-- Mode Selection Tabs -->
-      <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
-        <button id="mode-reading-btn" onclick="setMode('reading')" class="py-2.5 rounded-lg font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm bg-white text-emerald-600 border border-slate-200">
-          <span>📖</span>
-          <span>よみ もんだい</span>
-        </button>
-        <button id="mode-writing-btn" onclick="setMode('writing')" class="py-2.5 rounded-lg font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900">
-          <span>✍️</span>
-          <span>かき もんだい</span>
-        </button>
+    <div id="question" class="question-text">もんだいを よみこんでいます...</div>
+
+    <div id="reading-ui" class="options-grid"></div>
+
+    <div id="writing-ui" style="display: none;">
+      <div id="canvas-container" class="canvas-flex-container"></div>
+      <div class="controls">
+        <button class="btn btn-clear" onclick="clearAllCanvases()">けす</button>
+        <button class="btn btn-show" onclick="showWritingAnswer()">こたえあわせ</button>
       </div>
-
-      <!-- Grade Selector Dropdown -->
-      <div class="flex items-center justify-between text-sm pt-1 px-1">
-        <label for="grade-select" class="font-bold text-slate-600 flex items-center gap-1">
-          <span>🎒 がくねん:</span>
-        </label>
-        <select id="grade-select" onchange="filterQuestions()" class="bg-amber-50 border-2 border-amber-300 rounded-xl font-bold text-slate-800 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400">
-          <option value="all">すべて（1・2ねん）</option>
-          <option value="1">1ねんせい (80じ)</option>
-          <option value="2">2ねんせい (160じ)</option>
-        </select>
+      <div id="answer-box" class="answer-box">
+        <div style="font-size: 13px; color: #555;">せいかい：</div>
+        <div id="answer-kanji" class="answer-kanji">山</div>
       </div>
-    </section>
+    </div>
 
-    <section class="bg-white rounded-3xl p-5 shadow-lg border-4 border-amber-200 text-center relative overflow-hidden">
-      
-      <!-- Badges -->
-      <div class="flex justify-center items-center gap-2 mb-3">
-        <span id="badge-grade" class="bg-blue-500 text-white font-bold text-xs px-3 py-1 rounded-full shadow-sm">1ねん</span>
-        <span id="badge-category" class="bg-orange-500 text-white font-bold text-xs px-3 py-1 rounded-full shadow-sm">じゅくご</span>
-      </div>
+    <div id="result" class="result-msg"></div>
 
-      <!-- Question Text -->
-      <div id="question-container" class="min-h-[70px] flex items-center justify-center mb-4">
-        <p id="question-text" class="text-xl sm:text-2xl font-black text-slate-800 leading-relaxed"></p>
-      </div>
-
-      <!-- READ MODE UI -->
-      <div id="reading-ui" class="grid grid-cols-2 gap-3 my-2">
-        <!-- Choices injected dynamically -->
-      </div>
-
-      <!-- WRITE MODE UI -->
-      <div id="writing-ui" class="hidden">
-        <!-- Canvas grid dynamically updated based on answer length -->
-        <div id="canvases-wrapper" class="flex justify-center items-center gap-3 my-4 flex-wrap">
-          <!-- Canvas elements dynamically inserted -->
-        </div>
-
-        <!-- Controls for Canvas -->
-        <div class="flex justify-center gap-3 mb-4">
-          <button onclick="clearAllCanvases()" class="active-bounce bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-1">
-            <span>🗑️</span>
-            <span>ぜんぶ けす</span>
-          </button>
-          <button onclick="showAnswer()" class="active-bounce bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md flex items-center gap-1">
-            <span>🔍</span>
-            <span>こたえあわせ</span>
-          </button>
-        </div>
-
-        <!-- Answer Reveal Box -->
-        <div id="answer-box" class="hidden bg-amber-50 border-2 border-dashed border-amber-400 rounded-2xl p-3 my-3">
-          <p class="text-xs font-bold text-amber-700 mb-1">せいかい：</p>
-          <p id="answer-kanji" class="text-4xl sm:text-5xl font-black text-red-500 tracking-widest"></p>
-        </div>
-      </div>
-
-      <!-- Result Feedback -->
-      <div id="result-feedback" class="min-h-[36px] flex items-center justify-center font-black text-xl mt-2"></div>
-
-      <!-- Next Question Button -->
-      <div class="mt-4">
-        <button id="next-btn" onclick="nextQuestion()" class="hidden active-bounce w-full bg-pink-500 hover:bg-pink-600 text-white font-black py-3.5 px-6 rounded-2xl text-lg shadow-lg border-b-4 border-pink-700 tracking-wider">
-          つぎへ すすむ ➔
-        </button>
-      </div>
-
-    </section>
-
-  </main>
+    <div id="next-container" style="display: none; margin-top: 12px;">
+      <button class="btn btn-next" onclick="nextQuestion()">つぎへ ➔</button>
+    </div>
+  </div>
 
   <script>
-    // Audio synthesizer using Web Audio API (No external assets required)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let masterQuestions = [];
+    let currentPool = [];
+    let currentIndex = 0;
+    let activeCanvases = [];
 
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      const now = audioCtx.currentTime;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
 
       if (type === 'correct') {
-        // High pitched pleasant chime (G5 -> C6)
-        const osc1 = audioCtx.createOscillator();
-        const gain1 = audioCtx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(783.99, now); // G5
-        osc1.frequency.setValueAtTime(1046.50, now + 0.12); // C6
-        gain1.gain.setValueAtTime(0.3, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc1.connect(gain1);
-        gain1.connect(audioCtx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.4);
-      } else if (type === 'fanfare') {
-        // Achievement chime (C5 -> E5 -> G5 -> C6)
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-          gain.gain.setValueAtTime(0.25, now + idx * 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(now + idx * 0.08);
-          osc.stop(now + idx * 0.08 + 0.3);
-        });
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
       } else if (type === 'wrong') {
-        // Soft low tone
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(220, now);
-        osc.frequency.setValueAtTime(180, now + 0.15);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.35);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
       }
     }
 
-    // Master Questions Dataset for Grade 1 and 2
-    const masterQuestions = [
-      // === 1年生 (Grade 1) ===
-      { id: 1, grade: 1, category: "かんじ", mode: "reading", question: "「山」の よみかたは？", options: ["やま", "かわ", "た", "うみ"], answer: "やま" },
-      { id: 2, grade: 1, category: "こゆうめいし", mode: "writing", question: "「ふじ山」の 「さん」を かこう！", answer: "山" },
-      { id: 3, grade: 1, category: "じゅくご", mode: "reading", question: "「火山」の よみかたは？", options: ["かざん", "かわやま", "ひやま", "かぜ"], answer: "かざん" },
-      { id: 4, grade: 1, category: "こゆうめいし", mode: "writing", question: "「小川さん」の 「おがわ」を かこう！", answer: "小川" },
-      { id: 5, grade: 1, category: "じゅくご", mode: "reading", question: "「水田」の よみかたは？", options: ["すいでん", "みずた", "みずいで", "すいた"], answer: "すいでん" },
-      // FIXED 'たいよう' QUESTION
-      { id: 6, grade: 1, category: "じゅくご", mode: "writing", question: "「たいよう」を かんじで かこう！", answer: "太陽" },
-      { id: 7, grade: 1, category: "かんじ", mode: "reading", question: "「青」の よみかたは？", options: ["あお", "あか", "しろ", "くろ"], answer: "あお" },
-      { id: 8, grade: 1, category: "じゅくご", mode: "writing", question: "「あおぞら」を かんじで かこう！", answer: "青空" },
-      { id: 9, grade: 1, category: "じゅくご", mode: "writing", question: "「たいのう」ではなく「大こう」！「おおきい」を かこう！", answer: "大" },
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
 
-      // === 2年生 (Grade 2) ===
-      { id: 101, grade: 2, category: "かんじ", mode: "reading", question: "「角」の よみかたは？", options: ["つの", "かど", "くも", "かぜ"], answer: "つの" },
-      { id: 102, grade: 2, category: "じゅくご", mode: "writing", question: "「もじ」を かんじで かこう！", answer: "文字" },
-      { id: 103, grade: 2, category: "こゆうめいし", mode: "reading", question: "「東京都」の よみかたは？", options: ["とうきょうと", "ひがし", "みやこ", "きょう"], answer: "とうきょうと" },
-      { id: 104, grade: 2, category: "じゅくご", mode: "writing", question: "「しんごう」を かんじで かこう！", answer: "信号" },
-      { id: 105, grade: 2, category: "じゅくご", mode: "reading", question: "「時計」の よみかたは？", options: ["とけい", "じけい", "ときけい", "とけ"], answer: "とけい" },
-      { id: 106, grade: 2, category: "こゆうめいし", mode: "writing", question: "「ほっかいどう」の 「ほっかい」を かこう！", answer: "北海" },
-      { id: 107, grade: 2, category: "じゅくご", mode: "reading", question: "「算数」の よみかたは？", options: ["さんすう", "かんすう", "さんかず", "そろばん"], answer: "さんすう" },
-      { id: 108, grade: 2, category: "じゅくご", mode: "writing", question: "「がいこく」を かんじで かこう！", answer: "外国" }
-    ];
-
-    // Application State Variables
-    let currentMode = "reading"; // "reading" or "writing"
-    let currentGrade = "all";    // "all", "1", "2"
-    let filteredQuestions = [];
-    let currentIndex = 0;
-    let canvasObjects = [];
-
-    // Initialization
+    // 外部JSONの読み込み
     window.onload = () => {
-      filterQuestions();
+      fetch('questions_1nen.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('JSONの読み込みに失敗しました');
+          }
+          return response.json();
+        })
+        .then(data => {
+          masterQuestions = data;
+          filterQuestions();
+        })
+        .catch(error => {
+          console.error(error);
+          document.getElementById("question").innerText = "データのよみこみに しっぱいしました";
+        });
     };
 
-    function setMode(mode) {
-      if (currentMode === mode) return;
-      currentMode = mode;
-
-      const readBtn = document.getElementById("mode-reading-btn");
-      const writeBtn = document.getElementById("mode-writing-btn");
-
-      if (mode === "reading") {
-        readBtn.className = "py-2.5 rounded-lg font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm bg-white text-emerald-600 border border-slate-200";
-        writeBtn.className = "py-2.5 rounded-lg font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
-      } else {
-        writeBtn.className = "py-2.5 rounded-lg font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm bg-white text-indigo-600 border border-slate-200";
-        readBtn.className = "py-2.5 rounded-lg font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
-      }
-
-      filterQuestions();
-    }
-
     function filterQuestions() {
-      currentGrade = document.getElementById("grade-select").value;
-      
-      filteredQuestions = masterQuestions.filter(q => {
-        const matchesMode = (q.mode === currentMode);
-        const matchesGrade = (currentGrade === "all" || q.grade === parseInt(currentGrade));
-        return matchesMode && matchesGrade;
+      const selectedTerm = document.getElementById("term-select").value;
+      const selectedMode = document.getElementById("mode-select").value;
+
+      currentPool = masterQuestions.filter(q => {
+        const matchTerm = (selectedTerm === "all" || q.term === parseInt(selectedTerm));
+        const matchMode = (q.mode === selectedMode);
+        return matchTerm && matchMode;
       });
 
+      shuffleArray(currentPool);
       currentIndex = 0;
       loadQuestion();
     }
 
     function loadQuestion() {
-      const resultDiv = document.getElementById("result-feedback");
-      const nextBtn = document.getElementById("next-btn");
+      const resultDiv = document.getElementById("result");
+      const nextContainer = document.getElementById("next-container");
       resultDiv.innerText = "";
-      nextBtn.classList.add("hidden");
+      nextContainer.style.display = "none";
 
-      if (filteredQuestions.length === 0) {
-        document.getElementById("question-text").innerText = "もんだいが ありません";
-        document.getElementById("reading-ui").innerHTML = "";
-        document.getElementById("writing-ui").classList.add("hidden");
+      if (currentPool.length === 0) {
+        document.getElementById("question").innerText = "条件に合う問題がありません";
+        document.getElementById("reading-ui").style.display = "none";
+        document.getElementById("writing-ui").style.display = "none";
         return;
       }
 
-      const q = filteredQuestions[currentIndex];
+      const q = currentPool[currentIndex];
 
-      // Update Header Badges
-      document.getElementById("badge-grade").innerText = `${q.grade}ねん`;
-      document.getElementById("badge-category").innerText = q.category;
-      document.getElementById("question-text").innerText = q.question;
+      const termText = q.term === 1 ? "1がっき" : q.term === 2 ? "2がっき" : "3がっき";
+      document.getElementById("badge-term").innerText = termText;
+      document.getElementById("badge-mode").innerText = q.mode === "reading" ? "読み" : "書き";
+      document.getElementById("badge-type").innerText = q.category;
+      document.getElementById("question").innerText = q.question;
 
-      if (currentMode === "reading") {
-        document.getElementById("reading-ui").classList.remove("hidden");
-        document.getElementById("writing-ui").classList.add("hidden");
+      if (q.mode === "reading") {
+        document.getElementById("reading-ui").style.display = "grid";
+        document.getElementById("writing-ui").style.display = "none";
         renderReadingOptions(q);
       } else {
-        document.getElementById("reading-ui").classList.add("hidden");
-        document.getElementById("writing-ui").classList.remove("hidden");
-        document.getElementById("answer-box").classList.add("hidden");
+        document.getElementById("reading-ui").style.display = "none";
+        document.getElementById("writing-ui").style.display = "block";
+        document.getElementById("answer-box").style.display = "none";
         document.getElementById("answer-kanji").innerText = q.answer;
-        setupWritingCanvases(q.answer);
+        setupWritingCanvases(q.answer.length);
       }
     }
 
     function renderReadingOptions(q) {
       const container = document.getElementById("reading-ui");
       container.innerHTML = "";
+      
+      const opts = [...q.options];
+      shuffleArray(opts);
 
-      q.options.forEach(opt => {
+      opts.forEach(opt => {
         const btn = document.createElement("button");
-        btn.className = "active-bounce bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-lg sm:text-xl py-3 px-2 rounded-2xl shadow-md border-b-4 border-emerald-700 transition-colors";
+        btn.className = "option-btn";
         btn.innerText = opt;
         btn.onclick = () => checkReadingAnswer(opt, q.answer);
         container.appendChild(btn);
@@ -303,126 +389,97 @@
     }
 
     function checkReadingAnswer(selected, correct) {
-      const resultDiv = document.getElementById("result-feedback");
+      const resultDiv = document.getElementById("result");
       if (selected === correct) {
         playSound('correct');
-        resultDiv.className = "min-h-[36px] flex items-center justify-center font-black text-xl mt-2 text-emerald-600";
-        resultDiv.innerText = "⭕ せいかい！ すごいね！";
-        document.getElementById("next-btn").classList.remove("hidden");
+        resultDiv.style.color = "#4caf50";
+        resultDiv.innerText = "⭕ せいかい！";
+        document.getElementById("next-container").style.display = "block";
       } else {
         playSound('wrong');
-        resultDiv.className = "min-h-[36px] flex items-center justify-center font-black text-xl mt-2 text-red-500";
-        resultDiv.innerText = "❌ おしい！ もう一度えらぼう";
+        resultDiv.style.color = "#f44336";
+        resultDiv.innerText = "❌ おしい！もういちど";
       }
     }
 
-    function setupWritingCanvases(answerKanji) {
-      const wrapper = document.getElementById("canvases-wrapper");
-      wrapper.innerHTML = "";
-      canvasObjects = [];
-
-      const charCount = answerKanji.length; // e.g., "太陽" -> 2 characters -> 2 canvas boxes
-      const canvasSize = charCount === 1 ? 200 : (charCount === 2 ? 140 : 110);
+    function setupWritingCanvases(charCount) {
+      const container = document.getElementById("canvas-container");
+      container.innerHTML = "";
+      activeCanvases = [];
 
       for (let i = 0; i < charCount; i++) {
-        const box = document.createElement("div");
-        box.className = "flex flex-col items-center gap-1";
+        const wrapper = document.createElement("div");
+        wrapper.className = "canvas-wrapper";
 
-        const canvasEl = document.createElement("canvas");
-        canvasEl.width = canvasSize;
-        canvasEl.height = canvasSize;
-        canvasEl.className = "border-4 border-amber-300 rounded-2xl bg-white shadow-inner canvas-grid-bg cursor-crosshair canvas-box";
+        const guide = document.createElement("div");
+        guide.className = "canvas-guide";
 
-        const singleClearBtn = document.createElement("button");
-        singleClearBtn.className = "text-xs font-bold text-slate-500 hover:text-red-500 py-1 px-2 rounded bg-slate-100";
-        singleClearBtn.innerText = `けす (${i + 1})`;
-        singleClearBtn.onclick = () => clearSingleCanvas(i);
+        const canvas = document.createElement("canvas");
+        canvas.width = 140;
+        canvas.height = 140;
 
-        box.appendChild(canvasEl);
-        if (charCount > 1) box.appendChild(singleClearBtn);
-        wrapper.appendChild(box);
+        wrapper.appendChild(guide);
+        wrapper.appendChild(canvas);
+        container.appendChild(wrapper);
 
-        const ctx = canvasEl.getContext("2d");
-        ctx.lineWidth = charCount === 1 ? 12 : 9;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = "#1e293b";
-
-        const obj = { el: canvasEl, ctx: ctx, isDrawing: false };
-        canvasObjects.push(obj);
-
-        attachDrawingEvents(obj);
+        const ctx = canvas.getContext("2d");
+        initCanvasDrawing(canvas, ctx);
+        activeCanvases.push({ canvas, ctx });
       }
     }
 
-    function attachDrawingEvents(obj) {
-      const { el, ctx } = obj;
+    function initCanvasDrawing(canvas, ctx) {
+      ctx.lineWidth = 8;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#2c3e50";
+      let isDrawing = false;
 
       const getPos = (e) => {
-        const rect = el.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-          x: clientX - rect.left,
-          y: clientY - rect.top
-        };
+        return { x: clientX - rect.left, y: clientY - rect.top };
       };
 
-      const startDrawing = (e) => {
-        obj.isDrawing = true;
+      const start = (e) => {
+        isDrawing = true;
         const pos = getPos(e);
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
       };
 
       const draw = (e) => {
-        if (!obj.isDrawing) return;
+        if (!isDrawing) return;
         const pos = getPos(e);
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
       };
 
-      const stopDrawing = () => {
-        obj.isDrawing = false;
-        ctx.beginPath();
-      };
+      const stop = () => { isDrawing = false; };
 
-      // Mouse Input
-      el.addEventListener("mousedown", startDrawing);
-      el.addEventListener("mousemove", draw);
-      el.addEventListener("mouseup", stopDrawing);
-      el.addEventListener("mouseleave", stopDrawing);
+      canvas.addEventListener("mousedown", start);
+      canvas.addEventListener("mousemove", draw);
+      canvas.addEventListener("mouseup", stop);
 
-      // Touch Input
-      el.addEventListener("touchstart", (e) => { e.preventDefault(); startDrawing(e); });
-      el.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); });
-      el.addEventListener("touchend", stopDrawing);
-    }
-
-    function clearSingleCanvas(index) {
-      if (canvasObjects[index]) {
-        const { el, ctx } = canvasObjects[index];
-        ctx.clearRect(0, 0, el.width, el.height);
-      }
+      canvas.addEventListener("touchstart", (e) => { e.preventDefault(); start(e); });
+      canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); });
+      canvas.addEventListener("touchend", stop);
     }
 
     function clearAllCanvases() {
-      canvasObjects.forEach(obj => {
-        obj.ctx.clearRect(0, 0, obj.el.width, obj.el.height);
+      activeCanvases.forEach(({ canvas, ctx }) => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       });
     }
 
-    function showAnswer() {
-      playSound('fanfare');
-      document.getElementById("answer-box").classList.remove("hidden");
-      document.getElementById("next-btn").classList.remove("hidden");
-      const resultDiv = document.getElementById("result-feedback");
-      resultDiv.className = "min-h-[36px] flex items-center justify-center font-black text-xl mt-2 text-indigo-600";
-      resultDiv.innerText = "じぶんで たしかめて みよう！";
+    function showWritingAnswer() {
+      playSound('correct');
+      document.getElementById("answer-box").style.display = "block";
+      document.getElementById("next-container").style.display = "block";
     }
 
     function nextQuestion() {
-      currentIndex = (currentIndex + 1) % filteredQuestions.length;
+      currentIndex = (currentIndex + 1) % currentPool.length;
       loadQuestion();
     }
   </script>
