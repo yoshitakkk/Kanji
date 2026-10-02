@@ -3,275 +3,363 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>1ねんせいの かんじ れんしゅう</title>
-  
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23ff9800%22/><text y=%2270%22 x=%2210%22 font-size=%2275%22 fill=%22white%22 font-family=%22sans-serif%22 font-weight=%22bold%22>漢</text></svg>">
-
+  <title>小学校 漢字ドリル（1年生・2年生対応）</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: "Hiragino Kaku Gothic ProN", "メイリオ", sans-serif;
-      background-color: #eef7ff;
+    :root {
+      --primary-color: #4A90E2;
+      --secondary-color: #F5A623;
+      --bg-color: #F7F9FC;
+      --card-bg: #FFFFFF;
+      --text-color: #333333;
+      --border-color: #E0E0E0;
+      --correct-color: #2ECC71;
+      --incorrect-color: #E74C3C;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 15px;
+      padding: 0;
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      padding: 15px;
     }
+
+    header {
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
     h1 {
-      color: #2c3e50;
-      font-size: 20px;
-      margin: 0 0 12px 0;
-      text-align: center;
-    }
-    
-    .config-panel {
-      background: white;
-      padding: 10px 14px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      width: 100%;
-      max-width: 440px;
-      margin-bottom: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 8px;
-      align-items: center;
-    }
-    .config-group {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      font-weight: bold;
-      color: #333;
-    }
-    select {
-      font-size: 13px;
-      padding: 5px 8px;
-      border-radius: 8px;
-      border: 2px solid #4caf50;
-      background-color: #f9f9f9;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 440px;
-      text-align: center;
-    }
-
-    .badge-container {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
+      font-size: 1.5rem;
+      color: var(--primary-color);
       margin-bottom: 10px;
     }
-    .badge {
-      font-size: 12px;
-      padding: 3px 10px;
-      border-radius: 10px;
-      color: white;
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--card-bg);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .btn-option {
+      flex: 1;
+      padding: 8px 4px;
+      border: 1px solid var(--border-color);
+      background-color: #FFF;
+      color: var(--text-color);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-option.active {
+      background-color: var(--primary-color);
+      color: #FFF;
+      border-color: var(--primary-color);
       font-weight: bold;
     }
-    .badge-term { background-color: #00bcd4; }
-    .badge-mode { background-color: #9c27b0; }
-    .badge-type { background-color: #ff9800; }
 
-    .question-text {
-      font-size: 19px;
-      margin: 8px 0 16px;
-      color: #2c3e50;
+    .card-container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 380px;
+      position: relative;
+    }
+
+    .meta-info {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 15px;
+    }
+
+    .question-title {
+      font-size: 1.3rem;
       font-weight: bold;
-      min-height: 52px;
+      text-align: center;
+      margin-bottom: 20px;
+      min-height: 2.6rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      line-height: 1.4;
     }
 
+    /* 読み問題用スタイル */
     .options-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 12px;
+      width: 100%;
+      margin-top: 10px;
     }
+
     .option-btn {
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      padding: 14px;
-      font-size: 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 4px 0 #388e3c;
-      transition: all 0.1s;
-    }
-    .option-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 #388e3c;
-    }
-
-    .canvas-flex-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-    .canvas-wrapper {
-      position: relative;
-      width: 140px;
-      height: 140px;
-    }
-    canvas {
-      border: 3px solid #ffb74d;
-      border-radius: 12px;
-      background-color: #fffde7;
-      touch-action: none;
-      cursor: crosshair;
-    }
-    .canvas-guide {
-      position: absolute;
-      top: 0; left: 0;
-      width: 140px; height: 140px;
-      pointer-events: none;
-    }
-    .canvas-guide::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 0; right: 0;
-      border-top: 1px dashed #ffd54f;
-    }
-    .canvas-guide::after {
-      content: '';
-      position: absolute;
-      left: 50%; top: 0; bottom: 0;
-      border-left: 1px dashed #ffd54f;
-    }
-
-    .controls {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
+      padding: 15px;
+      font-size: 1.1rem;
+      background: #FFF;
+      border: 2px solid var(--border-color);
       border-radius: 10px;
-      font-size: 14px;
       cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+      transition: all 0.2s;
     }
-    .btn:active {
-      transform: translateY(3px);
-      box-shadow: none;
+
+    .option-btn:hover {
+      border-color: var(--primary-color);
+      background-color: #F0F7FF;
     }
-    .btn-clear { background-color: #888; color: white; }
-    .btn-show { background-color: #0288d1; color: white; }
-    .btn-next {
-      background-color: #e91e63;
-      color: white;
-      padding: 12px 24px;
-      font-size: 17px;
-      border-radius: 25px;
+
+    /* 書き問題用スタイル */
+    .canvas-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
       width: 100%;
     }
 
-    .answer-box {
-      background-color: #e8f5e9;
-      border: 2px dashed #4caf50;
-      border-radius: 12px;
-      padding: 10px;
-      margin-top: 8px;
-      display: none;
-    }
-    .answer-kanji {
-      font-size: 42px;
-      color: #2e7d32;
-      font-weight: bold;
-      letter-spacing: 4px;
-      margin-top: 2px;
+    .canvas-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border: 3px solid var(--primary-color);
+      border-radius: 8px;
+      background-color: #FFF;
+      background-image: 
+        linear-gradient(to right, #EFEFEF 1px, transparent 1px),
+        linear-gradient(to bottom, #EFEFEF 1px, transparent 1px);
+      background-size: 50% 50%;
+      background-position: center;
     }
 
-    .result-msg {
-      font-size: 20px;
+    canvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .canvas-tools {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: #FFF;
+      cursor: pointer;
+    }
+
+    .answer-reveal {
+      font-size: 2.5rem;
       font-weight: bold;
-      margin: 8px 0;
-      min-height: 28px;
+      color: var(--secondary-color);
+      margin-top: 10px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 全般ボタン */
+    .btn-next {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #FFF;
+      background-color: var(--secondary-color);
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(245, 166, 35, 0.3);
+      transition: transform 0.1s;
+    }
+
+    .btn-next:active {
+      transform: scale(0.98);
+    }
+
+    /* フィードバック表示 */
+    .feedback {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 5rem;
+      font-weight: bold;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feedback.correct {
+      color: var(--correct-color);
+      opacity: 0.9;
+    }
+
+    .feedback.incorrect {
+      color: var(--incorrect-color);
+      opacity: 0.9;
+    }
+
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
 
-  <h1>小学1ねんせい 漢字ドリル</h1>
+  <header>
+    <h1>小学校 漢字ドリル</h1>
+  </header>
 
-  <div class="config-panel">
-    <div class="config-group">
-      はんい:
-      <select id="term-select" onchange="filterQuestions()">
-        <option value="all">すべて（全80字）</option>
-        <option value="1">1がっき（かんたん）</option>
-        <option value="2">2がっき（ふつう）</option>
-        <option value="3">3学期（むずかしい）</option>
-      </select>
+  <div class="controls-panel" style="width: 100%; max-width: 600px;">
+    <!-- 学年選択 -->
+    <div class="control-group">
+      <span class="control-label">がくねん:</span>
+      <div class="btn-group" id="grade-group">
+        <button class="btn-option active" data-value="1">1年生</button>
+        <button class="btn-option" data-value="2">2年生</button>
+      </div>
     </div>
-    <div class="config-group">
-      モード:
-      <select id="mode-select" onchange="filterQuestions()">
-        <option value="reading">読みもんだい</option>
-        <option value="writing">書きもんだい</option>
-      </select>
+
+    <!-- 学期選択 -->
+    <div class="control-group">
+      <span class="control-label">がっき:</span>
+      <div class="btn-group" id="term-group">
+        <button class="btn-option active" data-value="all">すべて</button>
+        <button class="btn-option" data-value="1">1学期</button>
+        <button class="btn-option" data-value="2">2学期</button>
+        <button class="btn-option" data-value="3">3学期</button>
+      </div>
+    </div>
+
+    <!-- モード選択 -->
+    <div class="control-group">
+      <span class="control-label">もんだい:</span>
+      <div class="btn-group" id="mode-group">
+        <button class="btn-option active" data-value="reading">読みもんだい</button>
+        <button class="btn-option" data-value="writing">書きもんだい</button>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="badge-container">
-      <span id="badge-term" class="badge badge-term">全学期</span>
-      <span id="badge-mode" class="badge badge-mode">読み</span>
-      <span id="badge-type" class="badge badge-type">単字</span>
+  <div class="card-container">
+    <div class="meta-info">
+      <span id="term-tag">1学期</span>
+      <span id="progress-tag">1 / 10</span>
     </div>
 
-    <div id="question" class="question-text">もんだいを よみこんでいます...</div>
+    <div class="question-title" id="question-text">もんだいを よみこんでいます...</div>
 
-    <div id="reading-ui" class="options-grid"></div>
+    <!-- 読み問題エリア -->
+    <div class="options-grid hidden" id="reading-area">
+      <button class="option-btn" onclick="checkAnswer(0)"></button>
+      <button class="option-btn" onclick="checkAnswer(1)"></button>
+      <button class="option-btn" onclick="checkAnswer(2)"></button>
+      <button class="option-btn" onclick="checkAnswer(3)"></button>
+    </div>
 
-    <div id="writing-ui" style="display: none;">
-      <div id="canvas-container" class="canvas-flex-container"></div>
-      <div class="controls">
-        <button class="btn btn-clear" onclick="clearAllCanvases()">けす</button>
-        <button class="btn btn-show" onclick="showWritingAnswer()">こたえあわせ</button>
+    <!-- 書き問題エリア -->
+    <div class="canvas-container hidden" id="writing-area">
+      <div class="canvas-wrapper">
+        <canvas id="paintCanvas" width="200" height="200"></canvas>
       </div>
-      <div id="answer-box" class="answer-box">
-        <div style="font-size: 13px; color: #555;">せいかい：</div>
-        <div id="answer-kanji" class="answer-kanji">山</div>
+      <div class="canvas-tools">
+        <button class="btn-action" onclick="clearCanvas()">けす</button>
+        <button class="btn-action" onclick="revealAnswer()">こたえあわせ</button>
       </div>
+      <div class="answer-reveal hidden" id="answer-reveal"></div>
     </div>
 
-    <div id="result" class="result-msg"></div>
+    <button class="btn-next hidden" id="next-btn" onclick="nextQuestion()">つぎへ</button>
 
-    <div id="next-container" style="display: none; margin-top: 12px;">
-      <button class="btn btn-next" onclick="nextQuestion()">つぎへ ➔</button>
-    </div>
+    <div class="feedback" id="feedback"></div>
   </div>
 
   <script>
-    let masterQuestions = [];
-    let currentPool = [];
-    let currentIndex = 0;
-    let activeCanvases = [];
+    // --- 予備の埋め込みデータ (JSONが読み込めない場合のフォールバック) ---
+    const defaultData = {
+      1: [
+        { id: 101, term: 1, category: "単体", mode: "reading", question: "「山」の よみかたは？", options: ["やま", "川", "うみ", "そら"], answer: "やま" },
+        { id: 102, term: 1, category: "単体", mode: "writing", question: "「やま」を かんじで かこう！", options: [], answer: "山" },
+        { id: 103, term: 2, category: "単体", mode: "reading", question: "「空」の よみかたは？", options: ["そら", "あめ", "くも", "かぜ"], answer: "そら" },
+        { id: 104, term: 2, category: "単体", mode: "writing", question: "「そら」を かんじで かこう！", options: [], answer: "空" }
+      ],
+      2: [
+        { id: 201, term: 1, category: "単体", mode: "reading", question: "「数」の よみかたは？", options: ["かず", "かぞえる", "すう", "さつ"], answer: "かず" },
+        { id: 202, term: 1, category: "単体", mode: "writing", question: "「かず」を かんじで かこう！", options: [], answer: "数" },
+        { id: 221, term: 2, category: "単体", mode: "reading", question: "「東」の よみかたは？", options: ["ひがし", "にし", "みなみ", "きた"], answer: "ひがし" },
+        { id: 222, term: 2, category: "単体", mode: "writing", question: "「ひがし」を かんじで かこう！", options: [], answer: "東" }
+      ]
+    };
 
+    // --- アプリケーション状態 ---
+    let state = {
+      grade: "1",
+      term: "all",
+      mode: "reading",
+      questions: [],
+      filteredQuestions: [],
+      currentIndex: 0
+    };
+
+    // 音声効果用のWeb Audio API context
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     function playSound(type) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
@@ -281,207 +369,231 @@
 
       if (type === 'correct') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(660, audioCtx.currentTime); // E5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.3);
-      } else if (type === 'wrong') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+      } else {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
+        osc.stop(audioCtx.currentTime + 0.2);
       }
     }
 
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    // --- データのロード (外部JSONファイル優先) ---
+    async function loadQuestionData() {
+      const fileName = `questions_${state.grade}nen.json`;
+      try {
+        const response = await fetch(fileName);
+        if (!response.ok) throw new Error('File not found');
+        state.questions = await response.json();
+      } catch (e) {
+        console.warn(`外部ファイル ${fileName} の読み込みに失敗したため、内蔵データを使用します。`, e);
+        state.questions = defaultData[state.grade] || [];
       }
+      applyFilter();
     }
 
-    // 外部JSONの読み込み
-    window.onload = () => {
-      fetch('questions_1nen.json')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('JSONの読み込みに失敗しました');
-          }
-          return response.json();
-        })
-        .then(data => {
-          masterQuestions = data;
-          filterQuestions();
-        })
-        .catch(error => {
-          console.error(error);
-          document.getElementById("question").innerText = "データのよみこみに しっぱいしました";
-        });
-    };
-
-    function filterQuestions() {
-      const selectedTerm = document.getElementById("term-select").value;
-      const selectedMode = document.getElementById("mode-select").value;
-
-      currentPool = masterQuestions.filter(q => {
-        const matchTerm = (selectedTerm === "all" || q.term === parseInt(selectedTerm));
-        const matchMode = (q.mode === selectedMode);
-        return matchTerm && matchMode;
-      });
-
-      shuffleArray(currentPool);
-      currentIndex = 0;
-      loadQuestion();
+    // --- フィルタリング＆シャッフル ---
+    function applyFilter() {
+      let result = state.questions.filter(q => q.mode === state.mode);
+      if (state.term !== "all") {
+        result = result.filter(q => q.term === parseInt(state.term));
+      }
+      // 問題順をランダムにシャッフル
+      state.filteredQuestions = result.sort(() => Math.random() - 0.5);
+      state.currentIndex = 0;
+      renderCurrentQuestion();
     }
 
-    function loadQuestion() {
-      const resultDiv = document.getElementById("result");
-      const nextContainer = document.getElementById("next-container");
-      resultDiv.innerText = "";
-      nextContainer.style.display = "none";
-
-      if (currentPool.length === 0) {
-        document.getElementById("question").innerText = "条件に合う問題がありません";
-        document.getElementById("reading-ui").style.display = "none";
-        document.getElementById("writing-ui").style.display = "none";
+    // --- 問題の描画 ---
+    function renderCurrentQuestion() {
+      const readingArea = document.getElementById('reading-area');
+      const writingArea = document.getElementById('writing-area');
+      const nextBtn = document.getElementById('next-btn');
+      const answerReveal = document.getElementById('answer-reveal');
+      
+      answerReveal.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+      
+      const list = state.filteredQuestions;
+      if (list.length === 0) {
+        document.getElementById('question-text').innerText = "もんだいが ありません";
+        document.getElementById('progress-tag').innerText = "0 / 0";
+        readingArea.classList.add('hidden');
+        writingArea.classList.add('hidden');
         return;
       }
 
-      const q = currentPool[currentIndex];
+      const q = list[state.currentIndex];
+      document.getElementById('question-text').innerText = q.question;
+      document.getElementById('term-tag').innerText = `${q.term}学期`;
+      document.getElementById('progress-tag').innerText = `${state.currentIndex + 1} / ${list.length}`;
 
-      const termText = q.term === 1 ? "1がっき" : q.term === 2 ? "2がっき" : "3がっき";
-      document.getElementById("badge-term").innerText = termText;
-      document.getElementById("badge-mode").innerText = q.mode === "reading" ? "読み" : "書き";
-      document.getElementById("badge-type").innerText = q.category;
-      document.getElementById("question").innerText = q.question;
-
-      if (q.mode === "reading") {
-        document.getElementById("reading-ui").style.display = "grid";
-        document.getElementById("writing-ui").style.display = "none";
-        renderReadingOptions(q);
+      if (state.mode === 'reading') {
+        readingArea.classList.remove('hidden');
+        writingArea.classList.add('hidden');
+        
+        const btns = readingArea.querySelectorAll('.option-btn');
+        // 選択肢をシャッフル
+        const options = [...q.options].sort(() => Math.random() - 0.5);
+        btns.forEach((btn, idx) => {
+          btn.innerText = options[idx];
+          btn.disabled = false;
+          btn.style.backgroundColor = '#FFF';
+        });
       } else {
-        document.getElementById("reading-ui").style.display = "none";
-        document.getElementById("writing-ui").style.display = "block";
-        document.getElementById("answer-box").style.display = "none";
-        document.getElementById("answer-kanji").innerText = q.answer;
-        setupWritingCanvases(q.answer.length);
+        readingArea.classList.add('hidden');
+        writingArea.classList.remove('hidden');
+        clearCanvas();
       }
     }
 
-    function renderReadingOptions(q) {
-      const container = document.getElementById("reading-ui");
-      container.innerHTML = "";
-      
-      const opts = [...q.options];
-      shuffleArray(opts);
+    // --- 解答チェック（読み問題） ---
+    function checkAnswer(index) {
+      const q = state.filteredQuestions[state.currentIndex];
+      const btns = document.querySelectorAll('.option-btn');
+      const selectedBtn = btns[index];
 
-      opts.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.className = "option-btn";
-        btn.innerText = opt;
-        btn.onclick = () => checkReadingAnswer(opt, q.answer);
-        container.appendChild(btn);
-      });
-    }
-
-    function checkReadingAnswer(selected, correct) {
-      const resultDiv = document.getElementById("result");
-      if (selected === correct) {
+      if (selectedBtn.innerText === q.answer) {
+        showFeedback(true);
         playSound('correct');
-        resultDiv.style.color = "#4caf50";
-        resultDiv.innerText = "⭕ せいかい！";
-        document.getElementById("next-container").style.display = "block";
+        selectedBtn.style.backgroundColor = '#D4EDDA';
+        btns.forEach(btn => btn.disabled = true);
+        document.getElementById('next-btn').classList.remove('hidden');
       } else {
-        playSound('wrong');
-        resultDiv.style.color = "#f44336";
-        resultDiv.innerText = "❌ おしい！もういちど";
+        showFeedback(false);
+        playSound('incorrect');
+        selectedBtn.style.backgroundColor = '#F8D7DA';
       }
     }
 
-    function setupWritingCanvases(charCount) {
-      const container = document.getElementById("canvas-container");
-      container.innerHTML = "";
-      activeCanvases = [];
-
-      for (let i = 0; i < charCount; i++) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "canvas-wrapper";
-
-        const guide = document.createElement("div");
-        guide.className = "canvas-guide";
-
-        const canvas = document.createElement("canvas");
-        canvas.width = 140;
-        canvas.height = 140;
-
-        wrapper.appendChild(guide);
-        wrapper.appendChild(canvas);
-        container.appendChild(wrapper);
-
-        const ctx = canvas.getContext("2d");
-        initCanvasDrawing(canvas, ctx);
-        activeCanvases.push({ canvas, ctx });
-      }
+    // --- 書き問題の答え合わせ ---
+    function revealAnswer() {
+      const q = state.filteredQuestions[state.currentIndex];
+      const revealEl = document.getElementById('answer-reveal');
+      revealEl.innerText = q.answer;
+      revealEl.classList.remove('hidden');
+      document.getElementById('next-btn').classList.remove('hidden');
     }
 
-    function initCanvasDrawing(canvas, ctx) {
+    // --- 次の問題へ ---
+    function nextQuestion() {
+      state.currentIndex++;
+      if (state.currentIndex >= state.filteredQuestions.length) {
+        state.currentIndex = 0; // ループ
+      }
+      renderCurrentQuestion();
+    }
+
+    // --- フィードバックアニメーション ---
+    function showFeedback(isCorrect) {
+      const fb = document.getElementById('feedback');
+      fb.innerText = isCorrect ? '〇' : '✕';
+      fb.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      setTimeout(() => {
+        fb.className = 'feedback';
+      }, 800);
+    }
+
+    // --- お絵かきキャンバス制御 ---
+    const canvas = document.getElementById('paintCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    function initCanvas() {
       ctx.lineWidth = 8;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "#2c3e50";
-      let isDrawing = false;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#333';
 
-      const getPos = (e) => {
+      function getPos(e) {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      };
+        return {
+          x: (clientX - rect.left) * (canvas.width / rect.width),
+          y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+      }
 
-      const start = (e) => {
+      function startDraw(e) {
         isDrawing = true;
         const pos = getPos(e);
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
-      };
+      }
 
-      const draw = (e) => {
+      function draw(e) {
         if (!isDrawing) return;
+        e.preventDefault();
         const pos = getPos(e);
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
-      };
+      }
 
-      const stop = () => { isDrawing = false; };
+      function stopDraw() {
+        isDrawing = false;
+      }
 
-      canvas.addEventListener("mousedown", start);
-      canvas.addEventListener("mousemove", draw);
-      canvas.addEventListener("mouseup", stop);
+      canvas.addEventListener('mousedown', startDraw);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDraw);
+      canvas.addEventListener('mouseleave', stopDraw);
 
-      canvas.addEventListener("touchstart", (e) => { e.preventDefault(); start(e); });
-      canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); });
-      canvas.addEventListener("touchend", stop);
+      canvas.addEventListener('touchstart', startDraw, { passive: false });
+      canvas.addEventListener('touchmove', draw, { passive: false });
+      canvas.addEventListener('touchend', stopDraw);
     }
 
-    function clearAllCanvases() {
-      activeCanvases.forEach(({ canvas, ctx }) => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // --- UIイベントリスナーの設定 ---
+    function setupUIEvents() {
+      // 学年グループ
+      document.getElementById('grade-group').addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          document.querySelectorAll('#grade-group .btn-option').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          state.grade = e.target.getAttribute('data-value');
+          loadQuestionData();
+        }
+      });
+
+      // 学期グループ
+      document.getElementById('term-group').addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          document.querySelectorAll('#term-group .btn-option').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          state.term = e.target.getAttribute('data-value');
+          applyFilter();
+        }
+      });
+
+      // モードグループ
+      document.getElementById('mode-group').addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          document.querySelectorAll('#mode-group .btn-option').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          state.mode = e.target.getAttribute('data-value');
+          applyFilter();
+        }
       });
     }
 
-    function showWritingAnswer() {
-      playSound('correct');
-      document.getElementById("answer-box").style.display = "block";
-      document.getElementById("next-container").style.display = "block";
-    }
-
-    function nextQuestion() {
-      currentIndex = (currentIndex + 1) % currentPool.length;
-      loadQuestion();
-    }
+    // 初期化
+    window.onload = () => {
+      initCanvas();
+      setupUIEvents();
+      loadQuestionData();
+    };
   </script>
 </body>
 </html>
