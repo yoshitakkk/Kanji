@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-scale=1.0">
     <title>漢字マスター！小学生の漢字ドリル</title>
     <!-- ファビコン設定 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
@@ -353,6 +353,7 @@
                 restartDrill();
             } catch (error) {
                 console.warn(`Failed to fetch ${fileName}, using fallback data.`, error);
+                // フォールバックデータ
                 currentGradeData = {
                     grade: grade,
                     terms: {
@@ -393,6 +394,7 @@
             questionsList = [];
             if (rawList.length > 0) {
                 while (questionsList.length < 10) {
+                    // シャッフルして追加
                     const shuffled = [...rawList].sort(() => Math.random() - 0.5);
                     questionsList = questionsList.concat(shuffled);
                 }
@@ -492,6 +494,7 @@
             document.getElementById('next-btn').style.display = 'inline-block';
         }
 
+        // キャンバス手書き機能
         const canvas = document.getElementById('draw-canvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
@@ -513,7 +516,7 @@
             const x = clientX - rect.left;
             const y = clientY - rect.top;
 
-            ctx.lineWidth = 28; // 判定を少し緩くするための太さ
+            ctx.lineWidth = 14;
             ctx.lineCap = 'round';
             ctx.strokeStyle = '#212121';
 
@@ -557,6 +560,7 @@
             const eCtx = evalCanvas.getContext('2d');
             eCtx.clearRect(0, 0, 220, 220);
 
+            // 模範文字の描画
             eCtx.font = 'bold 150px sans-serif';
             eCtx.textAlign = 'center';
             eCtx.textBaseline = 'middle';
@@ -581,7 +585,7 @@
             const scorePercent = modelPixels > 0 ? Math.floor((matchPixels / modelPixels) * 100) : 0;
             const fb = document.getElementById('feedback-area');
 
-            // 80%以上で自動正解判定
+            // 80%以上で自動正解
             if (scorePercent >= 80) {
                 fb.textContent = `⭕ できた！ (一致度: ${scorePercent}%)`;
                 fb.style.color = '#2E7D32';
@@ -589,7 +593,7 @@
                 saveStats();
                 document.getElementById('next-btn').style.display = 'inline-block';
             } else {
-                fb.textContent = `⚠ もういちど書いてみよう！ (一致度: ${scorePercent}%)`;
+                fb.textContent = `⚠️️ もういちど書いてみよう！ (一致度: ${scorePercent}%)`;
                 fb.style.color = '#E65100';
                 document.getElementById('next-btn').style.display = 'inline-block';
             }
@@ -617,6 +621,7 @@
             `;
         }
 
+        // 初期ロード
         window.onload = () => {
             updateStatusBar();
             loadGradeData(document.getElementById('grade-select').value);
