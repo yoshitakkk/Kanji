@@ -338,6 +338,43 @@
       justify-content: center;
     }
 
+    .auto-eval-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      margin-bottom: 6px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      background-color: #F0F4F8;
+      width: 100%;
+      max-width: 250px;
+    }
+
+    .auto-eval-score {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .auto-eval-badge {
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+
+    .auto-eval-badge.pass {
+      background-color: #D4EDDA;
+      color: var(--correct-color);
+    }
+
+    .auto-eval-badge.fail {
+      background-color: #F8D7DA;
+      color: var(--incorrect-color);
+    }
+
     .self-check-btns {
       display: flex;
       gap: 10px;
@@ -510,6 +547,12 @@
           <button class="btn-action" onclick="revealAnswer()">こたえあわせ</button>
         </div>
         <div class="answer-reveal hidden" id="answer-reveal"></div>
+        
+        <div class="auto-eval-box hidden" id="auto-eval-box">
+          <div class="auto-eval-score" id="auto-eval-score">🎯 いっちど: 0%</div>
+          <div class="auto-eval-badge" id="auto-eval-badge">⭕ ごうかく</div>
+        </div>
+
         <div class="self-check-btns hidden" id="self-check-area">
           <button class="btn-check ng" onclick="recordWritingResult(false)">✕ むずかしい</button>
           <button class="btn-check ok" onclick="recordWritingResult(true)">⭕ できた！</button>
@@ -686,10 +729,12 @@
       const writingArea = document.getElementById('writing-area');
       const nextBtn = document.getElementById('next-btn');
       const answerReveal = document.getElementById('answer-reveal');
+      const autoEvalBox = document.getElementById('auto-eval-box');
       const selfCheckArea = document.getElementById('self-check-area');
       const hintBtn = document.getElementById('hint-btn');
 
       answerReveal.classList.add('hidden');
+      if (autoEvalBox) autoEvalBox.classList.add('hidden');
       selfCheckArea.classList.add('hidden');
       nextBtn.classList.add('hidden');
       state.hintUsedCurrentQuestion = false;
@@ -800,11 +845,85 @@
       }
     }
 
+    function evaluateDrawing(targetKanji) {
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // オフスクリーンキャンバスで模範漢字を太線描画
+      const refCanvas = document.createElement('canvas');
+      refCanvas.width = width;
+      refCanvas.height = height;
+      const refCtx = refCanvas.getContext('2d');
+
+      refCtx.font = "135px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+      refCtx.textAlign = 'center';
+      refCtx.textBaseline = 'middle';
+      refCtx.fillStyle = '#000';
+      refCtx.strokeStyle = '#000';
+      refCtx.lineWidth = 18;
+      refCtx.lineJoin = 'round';
+      refCtx.strokeText(targetKanji, width / 2, height / 2);
+      refCtx.fillText(targetKanji, width / 2, height / 2);
+
+      // ピクセルデータの取得と一致計算
+      const userImgData = ctx.getImageData(0, 0, width, height).data;
+      const refImgData = refCtx.getImageData(0, 0, width, height).data;
+
+      let refPixels = 0;
+      let userPixels = 0;
+      let overlapPixels = 0;
+
+      for (let i = 3; i < userImgData.length; i += 4) {
+        const hasUser = userImgData[i] > 30;
+        const hasRef = refImgData[i] > 30;
+
+        if (hasRef) refPixels++;
+        if (hasUser) userPixels++;
+        if (hasUser && hasRef) overlapPixels++;
+      }
+
+      if (userPixels < 60) {
+        return { score: 0, isPass: false, empty: true };
+      }
+
+      const coverage = overlapPixels / Math.max(refPixels, 1);
+      const precision = overlapPixels / Math.max(userPixels, 1);
+
+      // カバー率と精度を総合して一致度スコア（0-100%）を算出
+      const score = Math.min(100, Math.round((coverage * 0.65 + precision * 0.35) * 100));
+      const isPass = score >= 40 && coverage >= 0.30;
+
+      return { score, isPass, empty: false };
+    }
+
     function revealAnswer() {
       const q = state.quizSet[state.currentIndex];
       const revealEl = document.getElementById('answer-reveal');
       revealEl.innerText = q.answer;
       revealEl.classList.remove('hidden');
+
+      // 自動判定処理の実行
+      const evalResult = evaluateDrawing(q.answer);
+      const autoEvalBox = document.getElementById('auto-eval-box');
+      const scoreEl = document.getElementById('auto-eval-score');
+      const badgeEl = document.getElementById('auto-eval-badge');
+
+      if (evalResult.empty) {
+        scoreEl.innerText = "🎯 なにも かかれていません";
+        badgeEl.innerText = "✕ もういちど かいてみよう";
+        badgeEl.className = "auto-eval-badge fail";
+      } else {
+        scoreEl.innerText = `🎯 いっちど: ${evalResult.score}%`;
+        if (evalResult.isPass) {
+          badgeEl.innerText = "⭕ たぶん だいじょうぶ！";
+          badgeEl.className = "auto-eval-badge pass";
+        } else {
+          badgeEl.innerText = "✕ かたちを かくにんしよう";
+          badgeEl.className = "auto-eval-badge fail";
+        }
+      }
+
+      autoEvalBox.classList.remove('hidden');
       document.getElementById('self-check-area').classList.remove('hidden');
     }
 
