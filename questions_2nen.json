@@ -1,36 +1,83 @@
-[
-{ "id": 201, "term": 1, "category": "単体", "mode": "reading", "question": "「数」の よみかたは？", "options": ["かず", "かぞえる", "すう", "さつ"], "answer": "かず" },
-{ "id": 202, "term": 1, "category": "単体", "mode": "writing", "question": "「かず」を かんじで かこう！", "options": [], "answer": "数" },
-{ "id": 203, "term": 1, "category": "単体", "mode": "reading", "question": "「算」の よみかたは？", "options": ["さん", "かん", "けい", "すう"], "answer": "さん" },
-{ "id": 204, "term": 1, "category": "単体", "mode": "writing", "question": "「さん（さんすう）」の かんじを かこう！", "options": [], "answer": "算" },
-{ "id": 205, "term": 1, "category": "単体", "mode": "reading", "question": "「形」の よみかたは？", "options": ["かたち", "すがた", "いろ", "かげ"], "answer": "かたち" },
-{ "id": 206, "term": 1, "category": "単体", "mode": "writing", "question": "「かたち」を かんじで かこう！", "options": [], "answer": "形" },
-{ "id": 207, "term": 1, "category": "単体", "mode": "reading", "question": "「線」の よみかたは？", "options": ["せん", "てん", "めん", "すじ"], "answer": "せん" },
-{ "id": 208, "term": 1, "category": "単体", "mode": "writing", "question": "「せん」を かんじで かこう！", "options": [], "answer": "線" },
-{ "id": 209, "term": 1, "category": "単体", "mode": "reading", "question": "「角」の よみかたは？", "options": ["かど", "つの", "かく", "すみ"], "answer": "かど" },
-{ "id": 210, "term": 1, "category": "単体", "mode": "writing", "question": "「かど」を かんじで かこう！", "options": [], "answer": "角" },
-{ "id": 211, "term": 1, "category": "単体", "mode": "reading", "question": "「点」の よみかたは？", "options": ["てん", "せん", "まる", "あな"], "answer": "てん" },
-{ "id": 212, "term": 1, "category": "単体", "mode": "writing", "question": "「てん」を かんじで かこう！", "options": [], "answer": "点" },
-
-{ "id": 221, "term": 2, "category": "単体", "mode": "reading", "question": "「東」の よみかたは？", "options": ["ひがし", "にし", "みなみ", "きた"], "answer": "ひがし" },
-{ "id": 222, "term": 2, "category": "単体", "mode": "writing", "question": "「ひがし」を かんじで かこう！", "options": [], "answer": "東" },
-{ "id": 223, "term": 2, "category": "単体", "mode": "reading", "question": "「西」の よみかたは？", "options": ["にし", "ひがし", "みなみ", "きた"], "answer": "にし" },
-{ "id": 224, "term": 2, "category": "単体", "mode": "writing", "question": "「にし」を かんじで かこう！", "options": [], "answer": "西" },
-{ "id": 225, "term": 2, "category": "単体", "mode": "reading", "question": "「南」の よみかたは？", "options": ["みなみ", "きた", "ひがし", "にし"], "answer": "みなみ" },
-{ "id": 226, "term": 2, "category": "単体", "mode": "writing", "question": "「みなみ」を かんじで かこう！", "options": [], "answer": "南" },
-{ "id": 227, "term": 2, "category": "単体", "mode": "reading", "question": "「北」の よみかたは？", "options": ["きた", "みなみ", "ひがし", "にし"], "answer": "きた" },
-{ "id": 228, "term": 2, "category": "単体", "mode": "writing", "question": "「きた」を かんじで かこう！", "options": [], "answer": "北" },
-{ "id": 229, "term": 2, "category": "単体", "mode": "reading", "question": "「方」の よみかたは？", "options": ["ほう", "かた", "かたがた", "かたがわ"], "answer": "かた" },
-{ "id": 230, "term": 2, "category": "単体", "mode": "writing", "question": "「かた（夕方）」の かんじを かこう！", "options": [], "answer": "方" },
-
-{ "id": 231, "term": 3, "category": "単体", "mode": "reading", "question": "「光」の よみかたは？", "options": ["ひかり", "あかり", "ほし", "かぜ"], "answer": "ひかり" },
-{ "id": 232, "term": 3, "category": "単体", "mode": "writing", "question": "「ひかり」を かんじで かこう！", "options": [], "answer": "光" },
-{ "id": 233, "term": 3, "category": "単体", "mode": "reading", "question": "「風」の よみかたは？", "options": ["かぜ", "あめ", "くも", "あらし"], "answer": "かぜ" },
-{ "id": 234, "term": 3, "category": "単体", "mode": "writing", "question": "「かぜ」を かんじで かこう！", "options": [], "answer": "風" },
-{ "id": 235, "term": 3, "category": "単体", "mode": "reading", "question": "「雪」の よみかたは？", "options": ["ゆき", "あめ", "こおり", "しも"], "answer": "ゆき" },
-{ "id": 236, "term": 3, "category": "単体", "mode": "writing", "question": "「ゆき」を かんじで かこう！", "options": [], "answer": "雪" },
-{ "id": 237, "term": 3, "category": "単体", "mode": "reading", "question": "「海」の よみかたは？", "options": ["うみ", "かわ", "みずうみ", "いけ"], "answer": "うみ" },
-{ "id": 238, "term": 3, "category": "単体", "mode": "writing", "question": "「うみ」を かんじで かこう！", "options": [], "answer": "海" },
-{ "id": 239, "term": 3, "category": "単体", "mode": "reading", "question": "「地」の よみかたは？", "options": ["ち", "じ", "つち", "くに"], "answer": "ち" },
-{ "id": 240, "term": 3, "category": "単体", "mode": "writing", "question": "「ち（土地）」の かんじを かこう！", "options": [], "answer": "地" }
-]
+{
+  "grade": 2,
+  "terms": {
+    "1": {
+      "reading": [
+        {"q": "引", "choices": ["ひ", "いん", "つ", "き"], "ans": 0, "hint": "引っ張るの「ひ」です。"},
+        {"q": "羽", "choices": ["は", "はね", "う", "わ"], "ans": 1, "hint": "鳥が空をとぶためのパーツです。"},
+        {"q": "遠", "choices": ["とお", "えん", "ば", "ちか"], "ans": 0, "hint": "きょりがはなれていて遠いこと。"},
+        {"q": "何", "choices": ["なに", "なん", "ど", "こう"], "ans": 0, "hint": "「何年生？」などの「なに」。"},
+        "科学の「か」です。",
+        {"q": "夏", "choices": ["なつ", "げ", "か", "あき"], "ans": 0, "hint": "暑くてプールや海に行く季節です。"},
+        {"q": "家", "choices": ["いえ", "や", "か", "うち"], "ans": 0, "hint": "家族みんなですごす建物です。"},
+        {"q": "歌", "choices": ["うた", "か", "うたう", "のど"], "ans": 0, "hint": "音楽に合わせて声に出して歌うこと。"},
+        {"q": "画", "choices": ["が", "かく", "え", "画"], "ans": 0, "hint": "絵画や計画の「が」です。"},
+        {"q": "回", "choices": ["まわ", "かい", "ぐる", "めぐ"], "ans": 1, "hint": "回数の「かい」です。"}
+      ],
+      "writing": [
+        {"q": "ひく", "kanji": "引", "hint": "「弓」に縦棒の組み合わせ。"},
+        {"q": "はね", "kanji": "羽", "hint": "同じ形が左右に並ぶめずらしい字。"},
+        {"q": "とおい", "kanji": "遠", "hint": "「しんにょう」を丁寧に書こう。"},
+        {"q": "なつ", "kanji": "夏", "hint": "上の部分からしっかり書くよ。"},
+        {"q": "いえ", "kanji": "家", "hint": "「うかんむり」の下に「豕」を書くよ。"},
+        {"q": "うた", "kanji": "歌", "hint": "「可」が左右に並ぶバランス。"},
+        {"q": "かい", "kanji": "回", "hint": "四角の中に小さな四角が入る二重構造。"},
+        {"q": "え", "kanji": "画", "hint": "中の横線と縦線の交わりに注意。"},
+        {"q": "か", "kanji": "科", "hint": "「のぎへん」に「斗」を書きます。"},
+        {"q": "はる", "kanji": "春", "hint": "「三」の下に「日」を書くよ。"}
+      ]
+    },
+    "2": {
+      "reading": [
+        {"q": "京", "choices": ["きょう", "けい", "みやこ", "きょ"], "ans": 0, "hint": "東京や京都の「きょう」です。"},
+        {"q": "強", "choices": ["つよ", "きょう", "こわ", "強"], "ans": 0, "hint": "力がつよい様子を表します。"},
+        {"q": "教", "choices": ["おし", "きょう", "なら", "教"], "ans": 0, "hint": "先生がみんなに教えること。"},
+        {"q": "近", "choices": ["ちか", "きん", "とお", "近"], "ans": 0, "hint": "きょりが短い、すぐそばのこと。"},
+        {"q": "兄", "choices": ["あに", "けい", "きょう", "兄"], "ans": 0, "hint": "おにいちゃんの「あに」です。"},
+        {"q": "形", "choices": ["かたち", "けい", "なり", "形"], "ans": 0, "hint": "ものの見た目や姿のこと。"},
+        {"q": "計", "choices": ["はか", "けい", "と", "計"], "ans": 0, "hint": "時計の「けい」の字です。"},
+        {"q": "元", "choices": ["もと", "げん", "がん", "元"], "ans": 1, "hint": "元気の「げん」です。"},
+        {"q": "言", "choices": ["い", "こと", "げん", "ごん"], "ans": 0, "hint": "口から言葉をだすこと。"},
+        {"q": "古", "choices": ["ふる", "こ", "いにしえ", "古"], "ans": 0, "hint": "むかしのもので古いこと。"}
+      ],
+      "writing": [
+        {"q": "きょう", "kanji": "京", "hint": "上の「口」に似た部分と下に注目。"},
+        {"q": "つよい", "kanji": "強", "hint": "「弓」のパーツが入っているよ。"},
+        {"q": "おしえる", "kanji": "教", "hint": "「孝」の右側に「のぶん」を書くよ。"},
+        {"q": "ちかい", "kanji": "近", "hint": "「しんにょう」のバランスが大切。"},
+        {"q": "あに", "kanji": "兄", "hint": "「口」の下に「人」を大きく書くよ。"},
+        {"q": "かたち", "kanji": "形", "hint": "「さんずい」ではなく「けイ・つくり」の方。"},
+        {"q": "はかる", "kanji": "計", "hint": "「ごんべん」に「十」を書きます。"},
+        {"q": "げんき", "kanji": "元", "hint": "「二」の下に「人」を書くよ。"},
+        {"q": "いう", "kanji": "言", "hint": "横線が何本も重なるので丁寧に。"},
+        {"q": "ふるい", "kanji": "古", "hint": "「十」の下に「口」を書くよ。"}
+      ]
+    },
+    "3": {
+      "reading": [
+        {"q": "戸", "choices": ["と", "こ", "戸", "戸"], "ans": 0, "hint": "おうちのドアや戸口のこと。"},
+        {"q": "午", "choices": ["ご", "うま", "ひる", "午"], "ans": 0, "hint": "午後や午前という言葉に使います。"},
+        {"q": "後", "choices": ["あと", "ご", "うしろ", "のち"], "ans": 0, "hint": "あと、うしろ、という意味があるよ。"},
+        {"q": "語", "choices": ["ご", "かた", "語", "語"], "ans": 0, "hint": "日本語の「ご」の字です。"},
+        {"q": "工", "choices": ["こう", "たく", "工", "工"], "ans": 0, "hint": "工作の「こう」の字です。"},
+        {"q": "公", "choices": ["こう", "おおやけ", "公", "公"], "ans": 0, "hint": "公園の「こう」の字です。"},
+        {"q": "広", "choices": ["ひろ", "こう", "広", "広"], "ans": 0, "hint": "せまくない、広いようす。"},
+        {"q": "交", "choices": ["交", "こう", "まじ", "かあ"], "ans": 1, "hint": "交差点の「こう」の字です。"},
+        {"q": "光", "choices": ["ひかり", "光", "こう", "ひか"], "ans": 0, "hint": "まぶしく光るひかりのこと。"},
+        {"q": "考", "choices": ["かんが", "こう", "考", "考"], "ans": 0, "hint": "頭でよく考えること。"}
+      ],
+      "writing": [
+        {"q": "と", "kanji": "戸", "hint": "「門」の半分のような形の漢字。"},
+        {"q": "ごご", "kanji": "午", "hint": "真ん中の縦棒が突き抜けないよ。"},
+        {"q": "うしろ", "kanji": "後", "hint": "「ぎょうにんべん」に注目。"},
+        {"q": "ご", "kanji": "語", "hint": "「ごんべん」に「吾」を書くよ。"},
+        {"q": "こうさく", "kanji": "工", "hint": "上下の横線と真ん中の縦棒。"},
+        {"q": "こうえん", "kanji": "公", "hint": "「八」の下に「ム」のような形。"},
+        {"q": "ひろい", "kanji": "広", "hint": "「まだれ」の下に「ム」を書くよ。"},
+        {"q": "こうさ", "kanji": "交", "hint": "「立」の下に「父」のような形。"},
+        {"q": "ひかり", "kanji": "光", "hint": "上の点と払いに気をつけよう。"},
+        {"q": "かんがえる", "kanji": "考", "hint": "「老」の変形版のような漢字。"}
+      ]
+    }
+  }
+}
