@@ -51,7 +51,6 @@
       margin-bottom: 8px;
     }
 
-    /* 報酬・ステータスバー */
     .status-bar {
       width: 100%;
       max-width: 600px;
@@ -182,7 +181,6 @@
       justify-content: center;
     }
 
-    /* 読み問題用コンテナ & 選択肢 */
     .reading-container {
       width: 100%;
       display: flex;
@@ -224,7 +222,6 @@
       pointer-events: none;
     }
 
-    /* お助け（ヒント）ボタン */
     .btn-hint {
       padding: 8px 16px;
       font-size: 0.9rem;
@@ -275,7 +272,6 @@
       overflow: hidden;
     }
 
-    /* うっすらガイド用レイヤー */
     .guide-kanji {
       position: absolute;
       top: 50%;
@@ -443,14 +439,13 @@
     <h1>小学校 漢字ドリル</h1>
   </header>
 
-  <!-- スコア・メダルステータス -->
   <div class="status-bar">
     <div class="status-item">⭐ スター: <span id="star-count">0</span></div>
-    <div class="status-item">🥇 メダル: <span id="medal-count">0</span></div>
+    <div class="status-item">📖 読み: <span id="reading-medal-count">0</span>個</div>
+    <div class="status-item">✏️ 書き: <span id="writing-medal-count">0</span>個</div>
   </div>
 
   <div class="controls-panel">
-    <!-- 学年選択 -->
     <div class="control-group">
       <span class="control-label">がくねん:</span>
       <div class="btn-group" id="grade-group">
@@ -459,7 +454,6 @@
       </div>
     </div>
 
-    <!-- 学期選択 -->
     <div class="control-group">
       <span class="control-label">がっき:</span>
       <div class="btn-group" id="term-group">
@@ -470,7 +464,6 @@
       </div>
     </div>
 
-    <!-- モード選択 -->
     <div class="control-group">
       <span class="control-label">もんだい:</span>
       <div class="btn-group" id="mode-group">
@@ -481,7 +474,6 @@
   </div>
 
   <div class="card-container">
-    <!-- 出題中の画面 -->
     <div id="quiz-screen" style="width: 100%;">
       <div class="meta-info">
         <div class="meta-top">
@@ -495,7 +487,6 @@
 
       <div class="question-title" id="question-text">もんだいを よみこんでいます...</div>
 
-      <!-- 読み問題エリア -->
       <div class="reading-container hidden" id="reading-area">
         <div class="options-grid">
           <button class="option-btn" onclick="checkAnswer(0)"></button>
@@ -503,13 +494,11 @@
           <button class="option-btn" onclick="checkAnswer(2)"></button>
           <button class="option-btn" onclick="checkAnswer(3)"></button>
         </div>
-        <!-- 3択に絞るお助けヒントボタン -->
         <button class="btn-hint" id="hint-btn" onclick="use3ChoiceHint()">
           🪄 3たくにしぼる
         </button>
       </div>
 
-      <!-- 書き問題エリア -->
       <div class="canvas-container hidden" id="writing-area">
         <div class="canvas-wrapper">
           <div class="guide-kanji" id="guide-kanji">山</div>
@@ -532,7 +521,6 @@
       </div>
     </div>
 
-    <!-- 結果（ドリル完了）画面 -->
     <div id="result-screen" class="result-screen hidden">
       <div class="result-title">ドリル くりあ！</div>
       <div class="result-medal" id="result-medal">🥇</div>
@@ -567,7 +555,6 @@
       ]
     };
 
-    // グローバル状態 (スターとメダルは設定変更でもリセットされないよう保持)
     let state = {
       grade: "1",
       term: "all",
@@ -577,12 +564,12 @@
       currentIndex: 0,
       score: 0,
       totalStars: 0,
-      totalMedals: 0,
-      showGuide: true,
+      readingMedals: 0,
+      writingMedals: 0,
+      showGuide: false,
       hintUsedCurrentQuestion: false
     };
 
-    // 音声コンテキスト
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -631,10 +618,37 @@
       }
     }
 
-    // ステータス表示（スター・メダル）の同期更新
     function updateStatusDisplay() {
       document.getElementById('star-count').innerText = state.totalStars;
-      document.getElementById('medal-count').innerText = state.totalMedals;
+      document.getElementById('reading-medal-count').innerText = state.readingMedals;
+      document.getElementById('writing-medal-count').innerText = state.writingMedals;
+    }
+
+    function loadSavedProgress() {
+      try {
+        const saved = localStorage.getItem('kanji_drill_progress');
+        if (saved) {
+          const data = JSON.parse(saved);
+          state.totalStars = data.totalStars || 0;
+          state.readingMedals = data.readingMedals || 0;
+          state.writingMedals = data.writingMedals || 0;
+        }
+      } catch (e) {
+        console.error('保存データの読み込みに失敗しました:', e);
+      }
+    }
+
+    function saveProgress() {
+      try {
+        const data = {
+          totalStars: state.totalStars,
+          readingMedals: state.readingMedals,
+          writingMedals: state.writingMedals
+        };
+        localStorage.setItem('kanji_drill_progress', JSON.stringify(data));
+      } catch (e) {
+        console.error('データの保存に失敗しました:', e);
+      }
     }
 
     async function loadQuestionData() {
@@ -703,7 +717,6 @@
         readingArea.classList.remove('hidden');
         writingArea.classList.add('hidden');
         
-        // ヒントボタンのリセット
         hintBtn.disabled = false;
         hintBtn.innerText = "🪄 3たくにしぼる";
 
@@ -719,7 +732,6 @@
         readingArea.classList.add('hidden');
         writingArea.classList.remove('hidden');
         
-        // おてほんガイドの設定
         const guideEl = document.getElementById('guide-kanji');
         guideEl.innerText = q.answer;
         updateGuideVisibility();
@@ -728,18 +740,14 @@
       }
     }
 
-    // 4択から不正解を1つ消して3択にするヒント機能
     function use3ChoiceHint() {
       if (state.hintUsedCurrentQuestion) return;
 
       const q = state.quizSet[state.currentIndex];
       const btns = Array.from(document.querySelectorAll('.reading-container .option-btn'));
-      
-      // 正解以外のボタン（不正解の選択肢）を抽出
       const incorrectBtns = btns.filter(btn => btn.innerText !== q.answer && !btn.classList.contains('removed'));
 
       if (incorrectBtns.length > 0) {
-        // ランダムに1つ不正解肢を選んで非表示化
         const targetBtn = incorrectBtns[Math.floor(Math.random() * incorrectBtns.length)];
         targetBtn.classList.add('removed');
         
@@ -751,7 +759,6 @@
       }
     }
 
-    /* うっすらガイド表示のトグル切り替え */
     function toggleGuide() {
       state.showGuide = !state.showGuide;
       updateGuideVisibility();
@@ -839,7 +846,12 @@
       let medal = '🥉';
       if (score === total) {
         medal = '🥇';
-        state.totalMedals++;
+        if (state.mode === 'reading') {
+          state.readingMedals++;
+        } else {
+          state.writingMedals++;
+        }
+        saveProgress();
         updateStatusDisplay();
       } else if (score >= total * 0.7) {
         medal = '🥈';
@@ -942,6 +954,8 @@
     window.onload = () => {
       initCanvas();
       setupUIEvents();
+      loadSavedProgress();
+      updateStatusDisplay();
       loadQuestionData();
     };
   </script>
