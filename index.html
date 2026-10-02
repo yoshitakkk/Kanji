@@ -14,6 +14,7 @@
       --border-color: #E0E0E0;
       --correct-color: #2ECC71;
       --incorrect-color: #E74C3C;
+      --gold-color: #FFD700;
     }
 
     * {
@@ -37,16 +38,40 @@
       width: 100%;
       max-width: 600px;
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     h1 {
       font-size: 1.5rem;
       color: var(--primary-color);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+
+    /* 報酬・ステータスバー */
+    .status-bar {
+      width: 100%;
+      max-width: 600px;
+      background: #FFF;
+      border-radius: 12px;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
+      font-size: 1.1rem;
     }
 
     .controls-panel {
+      width: 100%;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -107,17 +132,40 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 380px;
+      min-height: 400px;
       position: relative;
     }
 
     .meta-info {
       width: 100%;
       display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: #888;
+      flex-direction: column;
+      gap: 8px;
       margin-bottom: 15px;
+    }
+
+    .meta-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #666;
+    }
+
+    /* プログレスバー */
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background-color: #E0E0E0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: var(--secondary-color);
+      transition: width 0.3s ease;
     }
 
     .question-title {
@@ -148,6 +196,7 @@
       border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s;
+      font-weight: bold;
     }
 
     .option-btn:hover {
@@ -206,12 +255,34 @@
       font-size: 2.5rem;
       font-weight: bold;
       color: var(--secondary-color);
-      margin-top: 10px;
-      min-height: 60px;
+      margin-top: 5px;
+      min-height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
+
+    .self-check-btns {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 250px;
+      margin-top: 5px;
+    }
+
+    .btn-check {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .btn-check.ok { background-color: var(--correct-color); }
+    .btn-check.ng { background-color: var(--incorrect-color); }
 
     /* 全般ボタン */
     .btn-next {
@@ -255,6 +326,34 @@
       opacity: 0.9;
     }
 
+    /* 結果（クリア）画面 */
+    .result-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .result-medal {
+      font-size: 4rem;
+      margin: 10px 0;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    .result-score {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -266,7 +365,13 @@
     <h1>小学校 漢字ドリル</h1>
   </header>
 
-  <div class="controls-panel" style="width: 100%; max-width: 600px;">
+  <!-- スコア・メダルステータス -->
+  <div class="status-bar">
+    <div class="status-item">⭐ スター: <span id="star-count">0</span></div>
+    <div class="status-item">🥇 メダル: <span id="medal-count">0</span></div>
+  </div>
+
+  <div class="controls-panel">
     <!-- 学年選択 -->
     <div class="control-group">
       <span class="control-label">がくねん:</span>
@@ -298,40 +403,64 @@
   </div>
 
   <div class="card-container">
-    <div class="meta-info">
-      <span id="term-tag">1学期</span>
-      <span id="progress-tag">1 / 10</span>
-    </div>
-
-    <div class="question-title" id="question-text">もんだいを よみこんでいます...</div>
-
-    <!-- 読み問題エリア -->
-    <div class="options-grid hidden" id="reading-area">
-      <button class="option-btn" onclick="checkAnswer(0)"></button>
-      <button class="option-btn" onclick="checkAnswer(1)"></button>
-      <button class="option-btn" onclick="checkAnswer(2)"></button>
-      <button class="option-btn" onclick="checkAnswer(3)"></button>
-    </div>
-
-    <!-- 書き問題エリア -->
-    <div class="canvas-container hidden" id="writing-area">
-      <div class="canvas-wrapper">
-        <canvas id="paintCanvas" width="200" height="200"></canvas>
+    <!-- 出題中の画面 -->
+    <div id="quiz-screen" style="width: 100%;">
+      <div class="meta-info">
+        <div class="meta-top">
+          <span id="term-tag">1学期</span>
+          <span id="progress-tag">1 / 10</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
       </div>
-      <div class="canvas-tools">
-        <button class="btn-action" onclick="clearCanvas()">けす</button>
-        <button class="btn-action" onclick="revealAnswer()">こたえあわせ</button>
+
+      <div class="question-title" id="question-text">もんだいを よみこんでいます...</div>
+
+      <!-- 読み問題エリア -->
+      <div class="options-grid hidden" id="reading-area">
+        <button class="option-btn" onclick="checkAnswer(0)"></button>
+        <button class="option-btn" onclick="checkAnswer(1)"></button>
+        <button class="option-btn" onclick="checkAnswer(2)"></button>
+        <button class="option-btn" onclick="checkAnswer(3)"></button>
       </div>
-      <div class="answer-reveal hidden" id="answer-reveal"></div>
+
+      <!-- 書き問題エリア -->
+      <div class="canvas-container hidden" id="writing-area">
+        <div class="canvas-wrapper">
+          <canvas id="paintCanvas" width="200" height="200"></canvas>
+        </div>
+        <div class="canvas-tools">
+          <button class="btn-action" onclick="clearCanvas()">けす</button>
+          <button class="btn-action" onclick="revealAnswer()">こたえあわせ</button>
+        </div>
+        <div class="answer-reveal hidden" id="answer-reveal"></div>
+        <div class="self-check-btns hidden" id="self-check-area">
+          <button class="btn-check ng" onclick="recordWritingResult(false)">✕ むずかしい</button>
+          <button class="btn-check ok" onclick="recordWritingResult(true)">⭕ できた！</button>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <button class="btn-next hidden" id="next-btn" onclick="nextQuestion()">つぎへ</button>
+      </div>
     </div>
 
-    <button class="btn-next hidden" id="next-btn" onclick="nextQuestion()">つぎへ</button>
+    <!-- 結果（ドリル完了）画面 -->
+    <div id="result-screen" class="result-screen hidden">
+      <div class="result-title">ドリル くりあ！</div>
+      <div class="result-medal" id="result-medal">🥇</div>
+      <div class="result-score" id="result-score">10問ちゅう 10問 せいかい！</div>
+      <button class="btn-next" onclick="restartQuiz()">もういちど チャレンジ！</button>
+    </div>
 
     <div class="feedback" id="feedback"></div>
   </div>
 
   <script>
-    // --- 予備の埋め込みデータ (JSONが読み込めない場合のフォールバック) ---
+    const QUIZ_LIMIT = 10; // 1回あたりの問題数
+
+    // フォールバックデータ
     const defaultData = {
       1: [
         { id: 101, term: 1, category: "単体", mode: "reading", question: "「山」の よみかたは？", options: ["やま", "川", "うみ", "そら"], answer: "やま" },
@@ -347,17 +476,18 @@
       ]
     };
 
-    // --- アプリケーション状態 ---
     let state = {
       grade: "1",
       term: "all",
       mode: "reading",
       questions: [],
-      filteredQuestions: [],
-      currentIndex: 0
+      quizSet: [],
+      currentIndex: 0,
+      score: 0,
+      totalStars: 0,
+      totalMedals: 0
     };
 
-    // 音声効果用のWeb Audio API context
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -369,12 +499,26 @@
 
       if (type === 'correct') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(660, audioCtx.currentTime); // E5
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+        osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
         gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'clear') {
+        // ファンファーレ風
+        const now = audioCtx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.frequency.setValueAtTime(freq, now + idx * 0.1);
+          g.gain.setValueAtTime(0.2, now + idx * 0.1);
+          g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+          o.start(now + idx * 0.1);
+          o.stop(now + idx * 0.1 + 0.3);
+        });
       } else {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(150, audioCtx.currentTime);
@@ -385,7 +529,6 @@
       }
     }
 
-    // --- データのロード (外部JSONファイル優先) ---
     async function loadQuestionData() {
       const fileName = `questions_${state.grade}nen.json`;
       try {
@@ -393,38 +536,45 @@
         if (!response.ok) throw new Error('File not found');
         state.questions = await response.json();
       } catch (e) {
-        console.warn(`外部ファイル ${fileName} の読み込みに失敗したため、内蔵データを使用します。`, e);
         state.questions = defaultData[state.grade] || [];
       }
-      applyFilter();
+      restartQuiz();
     }
 
-    // --- フィルタリング＆シャッフル ---
-    function applyFilter() {
-      let result = state.questions.filter(q => q.mode === state.mode);
+    function restartQuiz() {
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      document.getElementById('result-screen').classList.add('hidden');
+
+      let filtered = state.questions.filter(q => q.mode === state.mode);
       if (state.term !== "all") {
-        result = result.filter(q => q.term === parseInt(state.term));
+        filtered = filtered.filter(q => q.term === parseInt(state.term));
       }
-      // 問題順をランダムにシャッフル
-      state.filteredQuestions = result.sort(() => Math.random() - 0.5);
+      
+      // ランダムに10問選出
+      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+      state.quizSet = shuffled.slice(0, QUIZ_LIMIT);
       state.currentIndex = 0;
+      state.score = 0;
+      
       renderCurrentQuestion();
     }
 
-    // --- 問題の描画 ---
     function renderCurrentQuestion() {
       const readingArea = document.getElementById('reading-area');
       const writingArea = document.getElementById('writing-area');
       const nextBtn = document.getElementById('next-btn');
       const answerReveal = document.getElementById('answer-reveal');
-      
+      const selfCheckArea = document.getElementById('self-check-area');
+
       answerReveal.classList.add('hidden');
+      selfCheckArea.classList.add('hidden');
       nextBtn.classList.add('hidden');
-      
-      const list = state.filteredQuestions;
+
+      const list = state.quizSet;
       if (list.length === 0) {
         document.getElementById('question-text').innerText = "もんだいが ありません";
         document.getElementById('progress-tag').innerText = "0 / 0";
+        document.getElementById('progress-bar').style.width = "0%";
         readingArea.classList.add('hidden');
         writingArea.classList.add('hidden');
         return;
@@ -433,14 +583,17 @@
       const q = list[state.currentIndex];
       document.getElementById('question-text').innerText = q.question;
       document.getElementById('term-tag').innerText = `${q.term}学期`;
-      document.getElementById('progress-tag').innerText = `${state.currentIndex + 1} / ${list.length}`;
+      
+      const total = list.length;
+      const currentNum = state.currentIndex + 1;
+      document.getElementById('progress-tag').innerText = `${currentNum} / ${total}`;
+      document.getElementById('progress-bar').style.width = `${(currentNum / total) * 100}%`;
 
       if (state.mode === 'reading') {
         readingArea.classList.remove('hidden');
         writingArea.classList.add('hidden');
         
         const btns = readingArea.querySelectorAll('.option-btn');
-        // 選択肢をシャッフル
         const options = [...q.options].sort(() => Math.random() - 0.5);
         btns.forEach((btn, idx) => {
           btn.innerText = options[idx];
@@ -454,9 +607,8 @@
       }
     }
 
-    // --- 解答チェック（読み問題） ---
     function checkAnswer(index) {
-      const q = state.filteredQuestions[state.currentIndex];
+      const q = state.quizSet[state.currentIndex];
       const btns = document.querySelectorAll('.option-btn');
       const selectedBtn = btns[index];
 
@@ -465,6 +617,8 @@
         playSound('correct');
         selectedBtn.style.backgroundColor = '#D4EDDA';
         btns.forEach(btn => btn.disabled = true);
+        state.score++;
+        addStar();
         document.getElementById('next-btn').classList.remove('hidden');
       } else {
         showFeedback(false);
@@ -473,25 +627,63 @@
       }
     }
 
-    // --- 書き問題の答え合わせ ---
     function revealAnswer() {
-      const q = state.filteredQuestions[state.currentIndex];
+      const q = state.quizSet[state.currentIndex];
       const revealEl = document.getElementById('answer-reveal');
       revealEl.innerText = q.answer;
       revealEl.classList.remove('hidden');
+      document.getElementById('self-check-area').classList.remove('hidden');
+    }
+
+    function recordWritingResult(isCorrect) {
+      document.getElementById('self-check-area').classList.add('hidden');
+      if (isCorrect) {
+        showFeedback(true);
+        playSound('correct');
+        state.score++;
+        addStar();
+      } else {
+        showFeedback(false);
+        playSound('incorrect');
+      }
       document.getElementById('next-btn').classList.remove('hidden');
     }
 
-    // --- 次の問題へ ---
-    function nextQuestion() {
-      state.currentIndex++;
-      if (state.currentIndex >= state.filteredQuestions.length) {
-        state.currentIndex = 0; // ループ
-      }
-      renderCurrentQuestion();
+    function addStar() {
+      state.totalStars++;
+      document.getElementById('star-count').innerText = state.totalStars;
     }
 
-    // --- フィードバックアニメーション ---
+    function nextQuestion() {
+      state.currentIndex++;
+      if (state.currentIndex >= state.quizSet.length) {
+        showResult();
+      } else {
+        renderCurrentQuestion();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('quiz-screen').classList.add('hidden');
+      const resultScreen = document.getElementById('result-screen');
+      resultScreen.classList.remove('hidden');
+
+      const total = state.quizSet.length;
+      const score = state.score;
+      let medal = '🥉';
+      if (score === total) {
+        medal = '🥇';
+        state.totalMedals++;
+        document.getElementById('medal-count').innerText = state.totalMedals;
+      } else if (score >= total * 0.7) {
+        medal = '🥈';
+      }
+
+      document.getElementById('result-medal').innerText = medal;
+      document.getElementById('result-score').innerText = `${total}問ちゅう ${score}問 せいかい！`;
+      playSound('clear');
+    }
+
     function showFeedback(isCorrect) {
       const fb = document.getElementById('feedback');
       fb.innerText = isCorrect ? '〇' : '✕';
@@ -501,7 +693,7 @@
       }, 800);
     }
 
-    // --- お絵かきキャンバス制御 ---
+    // キャンバス処理
     const canvas = document.getElementById('paintCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
@@ -537,9 +729,7 @@
         ctx.stroke();
       }
 
-      function stopDraw() {
-        isDrawing = false;
-      }
+      function stopDraw() { isDrawing = false; }
 
       canvas.addEventListener('mousedown', startDraw);
       canvas.addEventListener('mousemove', draw);
@@ -555,9 +745,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // --- UIイベントリスナーの設定 ---
     function setupUIEvents() {
-      // 学年グループ
       document.getElementById('grade-group').addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
           document.querySelectorAll('#grade-group .btn-option').forEach(b => b.classList.remove('active'));
@@ -567,28 +755,25 @@
         }
       });
 
-      // 学期グループ
       document.getElementById('term-group').addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
           document.querySelectorAll('#term-group .btn-option').forEach(b => b.classList.remove('active'));
           e.target.classList.add('active');
           state.term = e.target.getAttribute('data-value');
-          applyFilter();
+          restartQuiz();
         }
       });
 
-      // モードグループ
       document.getElementById('mode-group').addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
           document.querySelectorAll('#mode-group .btn-option').forEach(b => b.classList.remove('active'));
           e.target.classList.add('active');
           state.mode = e.target.getAttribute('data-value');
-          applyFilter();
+          restartQuiz();
         }
       });
     }
 
-    // 初期化
     window.onload = () => {
       initCanvas();
       setupUIEvents();
