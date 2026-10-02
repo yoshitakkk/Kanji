@@ -2,855 +2,934 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>漢字マスター！しょうがくせいのかんじドリル</title>
-    <!-- Tailwind CSS for utility styling -->
+
+    <!-- Data URI Favicon (Pencil Emoji) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome icons for buttons and UI elements -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tone.js for clean sound effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Canvas Confetti for celebrate animations -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Google Fonts: M PLUS Rounded 1c -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
-        
         body {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            background-color: #f0f9ff;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #e0f2fe;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #38bdf8;
-            border-radius: 4px;
-        }
-
-        /* Custom animation effects */
-        .pop-hover {
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .pop-hover:hover {
-            transform: translateY(-3px) scale(1.02);
-        }
-        .pop-hover:active {
-            transform: translateY(1px) scale(0.98);
+        /* Genko Yoshi style canvas grid background */
+        .genko-grid {
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(to right, rgba(251, 191, 36, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(251, 191, 36, 0.3) 1px, transparent 1px),
+                linear-gradient(to right, rgba(245, 158, 11, 0.55) 2px, transparent 2px),
+                linear-gradient(to bottom, rgba(245, 158, 11, 0.55) 2px, transparent 2px);
+            background-size: 20px 20px, 20px 20px, 50% 50%, 50% 50%;
+            background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
         }
 
-        .highlight-kanji {
-            color: #0284c7;
-            background-color: #e0f2fe;
-            padding: 0.1em 0.3em;
-            border-radius: 0.3rem;
-            border-bottom: 3px solid #0284c7;
-            font-weight: 800;
-        }
-
-        .highlight-hiragana {
-            color: #d97706;
-            background-color: #fef3c7;
-            padding: 0.1em 0.3em;
-            border-radius: 0.3rem;
-            border-bottom: 3px solid #d97706;
-            font-weight: 800;
-        }
-
-        .canvas-container {
+        /* Essential touch interaction lock on canvas */
+        canvas {
             touch-action: none;
         }
 
-        /* Target hint animation */
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+        /* Short bounce animation */
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
-        .pulse-target {
-            animation: pulse-ring 2s infinite ease-in-out;
+        .animate-bounce-short {
+            animation: bounce-short 0.5s ease-in-out infinite;
+        }
+
+        /* Pop in animation for modals */
+        @keyframes pop-in {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: pop-in 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+<body class="bg-amber-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Top Header & Navigation Container -->
-    <header class="bg-amber-400 border-b-4 border-amber-500 shadow-md sticky top-0 z-30">
-        <div class="max-w-4xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+    <!-- Navigation Header -->
+    <header class="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-400 text-white shadow-md sticky top-0 z-20">
+        <div class="max-w-2xl mx-auto px-3 py-2 flex flex-col sm:flex-row items-center justify-between gap-2">
             <!-- Logo & Title -->
-            <div class="flex items-center space-x-2">
-                <div class="bg-white p-2 rounded-2xl shadow-inner text-amber-500 font-extrabold text-xl">
-                    <i class="fa-solid fa-pencil"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl md:text-2xl font-black text-amber-950 tracking-wider">漢字マスター！</h1>
-                    <p class="text-xs font-bold text-amber-800">しょうがくせいのかんじドリル</p>
-                </div>
+            <div class="flex items-center gap-2 cursor-pointer" onclick="resetToHome()">
+                <span class="text-3xl">✏️</span>
+                <h1 class="text-xl sm:text-2xl font-black tracking-wide drop-shadow-sm">漢字マスター！</h1>
             </div>
 
-            <!-- Grade, Term & Mode Controls -->
-            <div class="flex flex-wrap items-center gap-2 text-sm font-bold">
-                <!-- Grade Select -->
-                <select id="gradeSelect" onchange="changeFilter()" class="bg-white text-slate-700 px-3 py-1.5 rounded-xl border-2 border-amber-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer">
+            <!-- Grade, Term & Mode Selectors -->
+            <div class="flex items-center flex-wrap justify-center gap-1.5 text-xs sm:text-sm font-bold text-slate-800">
+                <!-- Grade Selector -->
+                <select id="gradeSelect" class="bg-white rounded-lg px-2 py-1 shadow border border-amber-200 outline-none focus:ring-2 focus:ring-orange-300">
                     <option value="1">1年生 (80字)</option>
                     <option value="2">2年生 (160字)</option>
                     <option value="3">3年生 (200字)</option>
                 </select>
 
-                <!-- Term Select -->
-                <select id="termSelect" onchange="changeFilter()" class="bg-white text-slate-700 px-3 py-1.5 rounded-xl border-2 border-amber-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer">
-                    <option value="0">すべての学期</option>
+                <!-- Term Selector -->
+                <select id="termSelect" class="bg-white rounded-lg px-2 py-1 shadow border border-amber-200 outline-none focus:ring-2 focus:ring-orange-300">
+                    <option value="all">ぜんぶ (全学期)</option>
                     <option value="1">1学期</option>
                     <option value="2">2学期</option>
                     <option value="3">3学期</option>
                 </select>
 
-                <!-- Mode Select Toggle Button -->
-                <div class="flex bg-amber-200 p-1 rounded-xl border border-amber-300">
-                    <button id="btnYomiMode" onclick="setMode('yomi')" class="px-3 py-1 rounded-lg text-xs md:text-sm font-black transition-all bg-amber-500 text-white shadow-sm">
-                        📖 よみ
-                    </button>
-                    <button id="btnKakiMode" onclick="setMode('kaki')" class="px-3 py-1 rounded-lg text-xs md:text-sm font-black transition-all text-amber-900 hover:bg-amber-300">
-                        ✍️ かき
-                    </button>
-                </div>
+                <!-- Mode Selector -->
+                <select id="modeSelect" class="bg-white rounded-lg px-2 py-1 shadow border border-amber-200 outline-none focus:ring-2 focus:ring-orange-300">
+                    <option value="read">📖 よみ (読み問題)</option>
+                    <option value="write">✏️ かき (書き問題)</option>
+                </select>
+            </div>
+        </div>
 
-                <!-- Open Progress Modal Button -->
-                <button onclick="openProgressModal()" class="bg-white text-sky-600 hover:bg-sky-50 px-3 py-1.5 rounded-xl border-2 border-sky-300 shadow-sm flex items-center space-x-1 pop-hover">
-                    <i class="fa-solid fa-trophy text-amber-500"></i>
-                    <span>ずかん</span>
-                </button>
+        <!-- Persistent Stats Scorebar -->
+        <div class="bg-amber-600/95 text-amber-50 text-xs sm:text-sm px-3 py-1 font-bold">
+            <div class="max-w-2xl mx-auto flex justify-around items-center">
+                <div class="flex items-center gap-1.5">
+                    <span>📖 よみ:</span>
+                    <span class="text-yellow-300">⭐ <span id="readStarsCount">0</span></span>
+                    <span class="text-amber-200 ml-1">🏅 <span id="readMedalsCount">0</span></span>
+                </div>
+                <div class="h-4 w-px bg-amber-400"></div>
+                <div class="flex items-center gap-1.5">
+                    <span>✏️ かき:</span>
+                    <span class="text-yellow-300">⭐ <span id="writeStarsCount">0</span></span>
+                    <span class="text-amber-200 ml-1">🏅 <span id="writeMedalsCount">0</span></span>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main App Container -->
-    <main class="max-w-3xl w-full mx-auto p-4 flex-1 flex flex-col justify-center items-center">
-        
-        <!-- Score & Progress Bar -->
-        <div class="w-full bg-white rounded-2xl p-3 mb-4 shadow-md border-2 border-slate-200 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <span id="currentModeBadge" class="bg-sky-500 text-white font-extrabold px-3 py-1 rounded-full text-xs md:text-sm">
-                    📖 よみモード
-                </span>
-                <span id="progressText" class="font-extrabold text-slate-600 text-sm md:text-base">
-                    だい 1 とい / 80 とい
-                </span>
+    <!-- Main Content Viewport -->
+    <main class="max-w-xl mx-auto w-full px-3 py-3 flex-grow flex flex-col">
+
+        <!-- Progress Indicator -->
+        <div class="mb-3 bg-white rounded-xl p-2.5 shadow-sm border border-amber-200 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-1 text-xs sm:text-sm font-black text-amber-700 min-w-[80px]">
+                <span>だい <span id="currentQIndex" class="text-base sm:text-lg text-orange-600">1</span> / 10 問</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-1 text-amber-500 font-extrabold text-base md:text-lg">
-                    <i class="fa-solid fa-star"></i>
-                    <span id="starCounter">0</span>
-                </div>
-                <div class="flex items-center space-x-1 text-yellow-600 font-extrabold text-base md:text-lg">
-                    <i class="fa-solid fa-medal"></i>
-                    <span id="medalCounter">0</span>
-                </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                <div id="sessionProgressBar" class="bg-gradient-to-r from-amber-400 to-orange-500 h-full w-10 transition-all duration-300 rounded-full"></div>
+            </div>
+            <button onclick="restartSession()" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-2.5 py-1 rounded-lg transition border border-amber-300 flex items-center gap-1 shrink-0">
+                🔄 最初から
+            </button>
+        </div>
+
+        <!-- Question Sentence Card -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 border-amber-200 text-center relative mb-4 flex flex-col justify-center items-center min-h-[110px]">
+            <!-- Mute / Unmute Button -->
+            <button onclick="toggleAudio()" id="audioToggleBtn" title="おと ON/OFF" class="absolute top-2 right-2 text-slate-400 hover:text-amber-600 text-xl p-1">
+                🔊
+            </button>
+
+            <!-- Question Sentence Text -->
+            <div id="sentenceContainer" class="text-xl sm:text-2xl font-bold text-slate-800 leading-relaxed tracking-wider my-1">
+                <!-- Dynamically populated sentence -->
+            </div>
+
+            <!-- Instruction Subtext -->
+            <div id="instructionPrompt" class="text-xs sm:text-sm font-bold text-amber-600 mt-1">
+                <!-- Instruction prompt -->
             </div>
         </div>
 
-        <!-- YOMI QUESTION CARD (📖 よみ) -->
-        <div id="yomiSection" class="w-full bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-sky-200 flex flex-col items-center relative overflow-hidden">
-            <div class="text-xs font-bold text-sky-500 uppercase tracking-widest mb-1">Context Reading Question</div>
+        <!-- Mode 1: Reading Mode Options Container -->
+        <div id="readingModeArea" class="flex flex-col gap-3 my-auto">
+            <!-- 3-Choice Narrow Helper Button -->
+            <div class="flex justify-end">
+                <button id="btnNarrow3" onclick="apply3ChoiceHelper()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+                    <span>💡 3択にしぼる</span>
+                </button>
+            </div>
+
+            <!-- 4 Multiple-Choice Buttons -->
+            <div id="optionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Dynamically rendered choice buttons -->
+            </div>
+        </div>
+
+        <!-- Mode 2: Writing Mode Canvas Container -->
+        <div id="writingModeArea" class="hidden flex-col items-center gap-3 my-auto">
             
-            <!-- Sentence Display with Context -->
-            <div id="yomiSentence" class="text-2xl md:text-4xl font-extrabold text-center my-6 leading-relaxed text-slate-800">
-                <!-- Inner HTML will be generated dynamically e.g. 「<span class="highlight-kanji">木</span>の えだ」 -->
+            <!-- Canvas Toolbar Controls -->
+            <div class="w-full flex justify-between items-center px-1">
+                <!-- Guide Toggle Button (Default OFF) -->
+                <button id="btnToggleGuide" onclick="toggleKanjiGuide()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                    <span id="guideIcon">👀</span> <span id="guideText">お手本を表示</span>
+                </button>
+
+                <!-- Drawing Canvas Eraser Controls -->
+                <div class="flex items-center gap-2">
+                    <button onclick="undoCanvasStroke()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 text-xs font-bold px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 active:scale-95">
+                        ↩️ 1つもどす
+                    </button>
+                    <button onclick="clearWritingCanvas()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 border border-rose-300 text-xs font-bold px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 active:scale-95">
+                        🗑️ けす
+                    </button>
+                </div>
             </div>
 
-            <p class="text-sm font-bold text-slate-500 mb-6">
-                きょうちょうされた かんじの <span class="text-sky-600 font-black">「よみかた」</span> を えらぼう！
-            </p>
+            <!-- Genko Yoshi Handwriting Canvas Wrapper -->
+            <div class="relative w-[270px] h-[270px] sm:w-[310px] sm:h-[310px] rounded-2xl border-4 border-amber-400 shadow-lg overflow-hidden genko-grid flex items-center justify-center">
+                <!-- Hidden Target Kanji Guide (Default Hidden) -->
+                <div id="guideKanjiOverlay" class="absolute inset-0 flex items-center justify-center text-slate-300/35 font-bold select-none pointer-events-none hidden text-[180px] sm:text-[220px] leading-none" style="font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif;">
+                    漢
+                </div>
 
-            <!-- 4-Choice Options Grid -->
-            <div id="yomiOptions" class="grid grid-cols-2 gap-4 w-full max-w-md">
-                <!-- Options populated dynamically -->
+                <!-- Touch / Pointer Interactive Canvas -->
+                <canvas id="handwritingCanvas" class="w-full h-full cursor-crosshair z-10" style="touch-action: none;"></canvas>
             </div>
 
-            <!-- Hint Button & Action Bar -->
-            <div class="mt-6 flex items-center justify-between w-full max-w-md px-2">
-                <button id="hintBtn" onclick="useYomiHint()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-4 py-2 rounded-xl text-xs md:text-sm border border-amber-300 flex items-center space-x-1 pop-hover">
-                    <i class="fa-solid fa-lightbulb text-amber-500"></i>
-                    <span>3たくにしぼる</span>
-                </button>
-                <button onclick="nextQuestion()" class="text-slate-400 hover:text-slate-600 font-bold text-xs md:text-sm flex items-center space-x-1">
-                    <span>スキップ</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
+            <!-- Submit & Grade Button -->
+            <button onclick="submitWritingAnswer()" class="w-full max-w-xs bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-lg py-3 px-6 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border-b-4 border-teal-800">
+                <span>💮 さいてんする！</span>
+            </button>
+        </div>
+
+        <!-- Writing Feedback & Self-Check Overlay Modal -->
+        <div id="writingFeedbackModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-5 max-w-sm w-full shadow-2xl border-4 border-amber-400 text-center animate-pop-in">
+                
+                <h2 id="feedbackTitle" class="text-2xl font-black text-amber-600 mb-1"></h2>
+                
+                <!-- Side-by-side Drawing Comparison -->
+                <div class="flex items-center justify-center gap-3 my-3">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-500 mb-1">あなたの字</span>
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 border-2 border-slate-300 rounded-xl bg-slate-50 p-1 flex items-center justify-center">
+                            <img id="userCanvasSnapshot" class="max-w-full max-h-full" alt="User writing">
+                        </div>
+                    </div>
+                    
+                    <div class="text-xl font-black text-slate-400">vs</div>
+
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-500 mb-1">正しい漢字</span>
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 border-2 border-amber-300 rounded-xl bg-amber-50/50 flex items-center justify-center text-5xl sm:text-6xl font-bold text-slate-800">
+                            <span id="correctKanjiDisplay">漢</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Score Badge -->
+                <div class="mb-4">
+                    <span class="text-xs font-bold text-slate-500">一致度（いっちど）: </span>
+                    <span id="matchScoreBadge" class="text-sm font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                        85%
+                    </span>
+                </div>
+
+                <!-- Auto Pass Action Button -->
+                <div id="autoPassActions" class="hidden">
+                    <p class="text-emerald-600 font-bold text-base mb-3">✨ すばらしい！大せいかい！ ✨</p>
+                    <button onclick="advanceNextQuestion()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition">
+                        つぎの問題へ ➔
+                    </button>
+                </div>
+
+                <!-- Self Check Decision Action Buttons -->
+                <div id="selfCheckActions" class="hidden flex flex-col gap-2">
+                    <p class="text-xs font-bold text-slate-600 mb-1">自分で たしかめてみよう！</p>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button onclick="gradeWritingManual(false)" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold py-2.5 rounded-xl border border-rose-300 transition text-sm">
+                            ❌ むずかしい
+                        </button>
+                        <button onclick="gradeWritingManual(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow transition text-sm">
+                            ⭕ できた！
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- KAKI QUESTION CARD (✍️ かき) -->
-        <div id="kakiSection" class="hidden w-full bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-amber-200 flex flex-col items-center relative">
-            <div class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-1">Context Writing Question</div>
-
-            <!-- Sentence Display with Context -->
-            <div id="kakiSentence" class="text-2xl md:text-3xl font-extrabold text-center my-4 leading-relaxed text-slate-800">
-                <!-- Inner HTML generated dynamically e.g. 「（<span class="highlight-hiragana">かい</span>）だんを のぼる」 -->
-            </div>
-
-            <p class="text-sm font-bold text-slate-500 mb-4">
-                カッコの ひらがなを <span class="text-amber-600 font-black">かんじ</span> で かこう！
-            </p>
-
-            <!-- Canvas Container -->
-            <div class="relative canvas-container my-2">
-                <!-- Model Overlay Guide Canvas (Light Gray Template) -->
-                <canvas id="modelCanvas" width="260" height="260" class="absolute top-0 left-0 rounded-2xl border-4 border-slate-200 pointer-events-none"></canvas>
-                <!-- Interactive Drawing Canvas -->
-                <canvas id="writeCanvas" width="260" height="260" class="rounded-2xl border-4 border-slate-300 bg-amber-50/30 cursor-crosshair shadow-inner"></canvas>
+        <!-- 10-Question Drill Completion Modal -->
+        <div id="sessionSummaryModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-gradient-to-b from-white to-amber-50 rounded-3xl p-6 max-w-sm w-full shadow-2xl border-4 border-amber-400 text-center animate-pop-in">
                 
-                <!-- Guidelines / Crosshairs in background -->
-                <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div class="w-full border-b border-dashed border-slate-300"></div>
-                    <div class="h-full border-r border-dashed border-slate-300 absolute"></div>
-                </div>
-            </div>
+                <div class="text-5xl mb-2 animate-bounce-short">🎉</div>
+                <h2 class="text-2xl font-black text-amber-700">10問クリア！</h2>
+                <p class="text-xs font-bold text-amber-600 mb-4">よくがんばったね！ メダルをゲット！</p>
 
-            <!-- Canvas Tool Controls -->
-            <div class="flex items-center gap-3 my-3">
-                <button onclick="toggleModelGuide()" id="btnToggleGuide" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl text-xs border border-slate-300 pop-hover">
-                    <i class="fa-solid fa-eye mr-1"></i>おてほん: <span id="guideStatus">ON</span>
-                </button>
-                <button onclick="clearCanvas()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-300 pop-hover">
-                    <i class="fa-solid fa-rotate-left mr-1"></i>けす
-                </button>
-                <button onclick="checkHandwriting()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-5 py-1.5 rounded-xl text-sm border-b-4 border-amber-700 pop-hover shadow-md">
-                    <i class="fa-solid fa-check mr-1"></i>できた！
-                </button>
-            </div>
-
-            <!-- Result Feedback & Self Check Controls (Hidden until evaluated) -->
-            <div id="kakiFeedbackArea" class="hidden w-full max-w-sm mt-3 p-4 rounded-2xl bg-amber-50 border-2 border-amber-200 flex flex-col items-center text-center">
-                <div id="kakiScoreBadge" class="text-base font-black text-amber-800 mb-2"></div>
-                <div class="flex items-center gap-2 w-full justify-center">
-                    <button onclick="retryKaki()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 rounded-xl text-xs pop-hover">
-                        むずかしい（やりなおし）
-                    </button>
-                    <button onclick="forcePassKaki()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-2 rounded-xl text-xs pop-hover shadow-sm">
-                        できた！（せいかい！）
-                    </button>
+                <!-- Summary Stats Box -->
+                <div class="bg-white rounded-2xl p-4 shadow-inner border border-amber-200 mb-5 flex justify-around items-center">
+                    <div>
+                        <div class="text-xs font-bold text-slate-500">せいかい数</div>
+                        <div class="text-2xl font-black text-amber-600"><span id="summaryCorrectCount">10</span> / 10</div>
+                    </div>
+                    <div class="h-8 w-px bg-amber-200"></div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-500">もらったメダル</div>
+                        <div class="text-2xl font-black text-amber-500">🏅 +1</div>
+                    </div>
                 </div>
+
+                <button onclick="restartSession()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-lg py-3 rounded-2xl shadow-md transition active:scale-95 border-b-4 border-orange-700">
+                    もう一度ちょうせん！ 🚀
+                </button>
             </div>
         </div>
 
     </main>
 
-    <!-- Kanji Dictionary & Progress Modal -->
-    <div id="progressModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border-4 border-amber-300 overflow-hidden">
-            <!-- Modal Header -->
-            <div class="bg-amber-400 p-4 border-b-2 border-amber-500 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-book-bookmark text-2xl text-amber-900"></i>
-                    <h2 class="text-xl font-black text-amber-950">かんじマスター ずかん</h2>
-                </div>
-                <button onclick="closeProgressModal()" class="text-amber-900 hover:text-amber-950 font-black text-2xl p-1">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <!-- Filter Info -->
-            <div class="p-3 bg-amber-50 border-b border-amber-100 flex justify-between items-center text-xs md:text-sm font-bold text-slate-600">
-                <span id="modalFilterText">1年生・すべての学期</span>
-                <span id="modalCompletionText">クリア: 0 / 80</span>
-            </div>
-
-            <!-- Kanji Cards Grid -->
-            <div id="kanjiGrid" class="p-4 grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 overflow-y-auto flex-1">
-                <!-- Kanji Cards Rendered Dynamically -->
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="p-3 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
-                <button onclick="resetCurrentProgress()" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-3 py-1">
-                    <i class="fa-solid fa-trash-can mr-1"></i>このがくねんのきろくをリセット
-                </button>
-                <button onclick="closeProgressModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs px-5 py-2 rounded-xl pop-hover">
-                    とじる
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Footer -->
-    <footer class="text-center py-3 text-xs font-bold text-slate-400">
-        © 小学生の漢字マスター！ - 1〜3年生全440字完全対応
+    <footer class="bg-amber-100 text-amber-800/80 text-xs text-center py-2 border-t border-amber-200">
+        漢字マスター！ しょうがくせいのかんじドリル &copy; 1〜3年生対応
     </footer>
 
     <script>
-        // Comprehensive Kanji Database for Grades 1 to 3 with rich sentence context & disambiguation
+        /* ====================================================================
+           1. KANJI DRILL DATABASE (Grades 1 - 3 Across Terms 1 - 3)
+           ==================================================================== */
         const KANJI_DATABASE = {
-            // Grade 1 (80 Kanji)
-            1: [
-                // Term 1
-                { kanji: "一", term: 1, yomi: "いち", sentence_yomi: "【一】ねんせい に なる", target_yomi: "いち", yomi_options: ["いち", "に", "さん", "ひと"], sentence_kaki: "（いち）ねんせい に なる" },
-                { kanji: "右", term: 1, yomi: "みぎ", sentence_yomi: "【右】て を あげる", target_yomi: "みぎ", yomi_options: ["みぎ", "ひだり", "うえ", "した"], sentence_kaki: "（みぎ）て を あげる" },
-                { kanji: "雨", term: 1, yomi: "あめ", sentence_yomi: "【雨】が ふる", target_yomi: "あめ", yomi_options: ["あめ", "ゆき", "かぜ", "くも"], sentence_kaki: "（あめ）が ふる" },
-                { kanji: "円", term: 1, yomi: "えん", sentence_yomi: "百【円】の おかし", target_yomi: "えん", yomi_options: ["えん", "だま", "かね", "まる"], sentence_kaki: "ひゃく（えん）の おかし" },
-                { kanji: "王", term: 1, yomi: "おう", sentence_yomi: "【王】さまの かんむり", target_yomi: "おう", yomi_options: ["おう", "たま", "きみ", "たま"], sentence_kaki: "（おう）さまの かんむり" },
-                { kanji: "音", term: 1, yomi: "おと", sentence_yomi: "たのしい 【音】が する", target_yomi: "おt", yomi_options: ["おと", "ね", "こえ", "うた"], sentence_kaki: "たのしい （おと）が する", target_yomi: "おと" },
-                { kanji: "下", term: 1, yomi: "した", sentence_yomi: "つくえの 【下】を みる", target_yomi: "した", yomi_options: ["した", "うえ", "なか", "まえ"], sentence_kaki: "つくえの （した）を みる" },
-                { kanji: "火", term: 1, yomi: "ひ", sentence_yomi: "【火】を もやす", target_yomi: "ひ", yomi_options: ["ひ", "みず", "き", "つち"], sentence_kaki: "（ひ）を もやす" },
-                { kanji: "花", term: 1, yomi: "はな", sentence_yomi: "きれいな 【花】が さく", target_yomi: "はな", yomi_options: ["はな", "くさ", "き", "えだ"], sentence_kaki: "きれいな （はな）が さく" },
-                { kanji: "貝", term: 1, yomi: "かい", sentence_yomi: "うみで 【貝】を ひろう", target_yomi: "かい", yomi_options: ["かい", "さかな", "ふね", "えび"], sentence_kaki: "うみで （かい）を ひろう" },
-                { kanji: "学", term: 1, yomi: "がく", sentence_yomi: "【学】っこう に いく", target_yomi: "がっ", yomi_options: ["がっ", "まな", "こう", "せい"], sentence_kaki: "（がっ）こう に いく" },
-                { kanji: "気", term: 1, yomi: "き", sentence_yomi: "げん【気】な あいさつ", target_yomi: "き", yomi_options: ["き", "け", "てん", "こころ"], sentence_kaki: "げん（き）な あいさつ" },
-                { kanji: "九", term: 1, yomi: "きゅう", sentence_yomi: "りんごが 【九】つ ある", target_yomi: "ここの", yomi_options: ["ここの", "とう", "やっ", "なな"], sentence_kaki: "りんごが （ここの）つ ある" },
-                { kanji: "休", term: 1, yomi: "やす", sentence_yomi: "きょうは 【休】み だ", target_yomi: "やす", yomi_options: ["やす", "きゅう", "とま", "おわり"], sentence_kaki: "きょうは （やす）み だ" },
-                { kanji: "玉", term: 1, yomi: "たま", sentence_yomi: "シャボン【玉】を ふく", target_yomi: "だま", yomi_options: ["だま", "たま", "おう", "まる"], sentence_kaki: "シャボン（だま）を ふく" },
-                { kanji: "金", term: 1, yomi: "かね", sentence_yomi: "お【金】を たいせつに する", target_yomi: "かね", yomi_options: ["かね", "きん", "ぎん", "かな"], sentence_kaki: "お（かね）を たいせつに する" },
-                { kanji: "空", term: 1, yomi: "そら", sentence_yomi: "あおい 【空】を みあげる", target_yomi: "そら", yomi_options: ["そら", "くう", "あき", "から"], sentence_kaki: "あおい （そら）を みあげる" },
-                { kanji: "月", term: 1, yomi: "つき", sentence_yomi: "夜【月】が でている", target_yomi: "つき", yomi_options: ["つき", "げつ", "がつ", "ほし"], sentence_kaki: "よる （つき）が でている" },
-                { kanji: "犬", term: 1, yomi: "いぬ", sentence_yomi: "かわいい 【犬】の さんぽ", target_yomi: "いぬ", yomi_options: ["いぬ", "ねこ", "とり", "うま"], sentence_kaki: "かわいい （いぬ）の さんぽ" },
-                { kanji: "見", term: 1, yomi: "み", sentence_yomi: "テレビを 【見】る", target_yomi: "み", yomi_options: ["み", "けん", "きく", "よむ"], sentence_kaki: "テレビを （み）る" },
-                { kanji: "五", term: 1, yomi: "ご", sentence_yomi: "【五】にんグループ", target_yomi: "ご", yomi_options: ["ご", "いつ", "よん", "ろく"], sentence_kaki: "（ご）にんグループ" },
-                { kanji: "口", term: 1, yomi: "くち", sentence_yomi: "おおきな 【口】を あける", target_yomi: "くち", yomi_options: ["くち", "こう", "め", "みみ"], sentence_kaki: "おおきな （くち）を あける" },
-                { kanji: "校", term: 1, yomi: "こう", sentence_yomi: "学【校】で べんきょう", target_yomi: "こう", yomi_options: ["こう", "がく", "き", "えん"], sentence_kaki: "がっ（こう）で べんきょう" },
-                { kanji: "左", term: 1, yomi: "ひだり", sentence_yomi: "【左】がわを あるく", target_yomi: "ひだり", yomi_options: ["ひだり", "みぎ", "まえ", "うしろ"], sentence_kaki: "（ひだり）がわを あるく" },
-                { kanji: "三", term: 1, yomi: "さん", sentence_yomi: "【三】かくけい", target_yomi: "さん", yomi_options: ["さん", "みっ", "いち", "に"], sentence_kaki: "（さん）かくけい" },
-                { kanji: "山", term: 1, yomi: "やま", sentence_yomi: "たかい 【山】に のぼる", target_yomi: "やま", yomi_options: ["やま", "さん", "かわ", "もり"], sentence_kaki: "たかい （やま）に のぼる" },
-                { kanji: "子", term: 1, yomi: "こ", sentence_yomi: "元気な 【子】ども", target_yomi: "こ", yomi_options: ["こ", "し", "おとこ", "おんな"], sentence_kaki: "げんきな （こ）ども" },
-
-                // Term 2
-                { kanji: "四", term: 2, yomi: "よん", sentence_yomi: "【四】つかど", target_yomi: "よん", yomi_options: ["よん", "し", "よっ", "さん"], sentence_kaki: "（よん）つかど" },
-                { kanji: "糸", term: 2, yomi: "いと", sentence_yomi: "赤い 【糸】で むすぶ", target_yomi: "いと", yomi_options: ["いと", "し", "ひも", "かみ"], sentence_kaki: "あかい （いと）で むすぶ" },
-                { kanji: "字", term: 2, yomi: "じ", sentence_yomi: "ていねいに 【字】を かく", target_yomi: "じ", yomi_options: ["じ", "あざ", "ぶん", "ほん"], sentence_kaki: "ていねいに （じ）を かく" },
-                { kanji: "耳", term: 2, yomi: "みみ", sentence_yomi: "うたを 【耳】で きく", target_yomi: "みみ", yomi_options: ["みみ", "じ", "め", "はな"], sentence_kaki: "うたを （みみ）で きく" },
-                { kanji: "七", term: 2, yomi: "なな", sentence_yomi: "【七】つの ほし", target_yomi: "なな", yomi_options: ["なな", "しち", "ろく", "はち"], sentence_kaki: "（なな）つの ほし" },
-                { kanji: "車", term: 2, yomi: "くるま", sentence_yomi: "赤い 【車】に のる", target_yomi: "くるま", yomi_options: ["くるま", "しゃ", "でんしゃ", "ふね"], sentence_kaki: "あかい （くるま）に のる" },
-                { kanji: "手", term: 2, yomi: "て", sentence_yomi: "きれいな 【手】で たべる", target_yomi: "て", yomi_options: ["て", "しゅ", "あし", "め"], sentence_kaki: "きれいな （て）で たべる" },
-                { kanji: "十", term: 2, yomi: "じゅう", sentence_yomi: "【十】にんの おともだち", target_yomi: "じゅう", yomi_options: ["じゅう", "とお", "きゅう", "ひゃく"], sentence_kaki: "（じゅう）にんの おともだち" },
-                { kanji: "出", term: 2, yomi: "で", sentence_yomi: "へやから 【出】る", target_yomi: "で", yomi_options: ["で", "しゅつ", "はい", "あがる"], sentence_kaki: "へやから （で）る" },
-                { kanji: "女", term: 2, yomi: "おんな", sentence_yomi: "【女】の こ", target_yomi: "おんな", yomi_options: ["おんな", "じょ", "おとこ", "こ"], sentence_kaki: "（おんな）の こ" },
-                { kanji: "小", term: 2, yomi: "ちい", sentence_yomi: "【小】さな はな", target_yomi: "ちい", yomi_options: ["ちい", "しょう", "おお", "すこ"], sentence_kaki: "（ちい）さな はな" },
-                { kanji: "上", term: 2, yomi: "うえ", sentence_yomi: "【上】を むいて あるこう", target_yomi: "うえ", yomi_options: ["うえ", "じょう", "した", "なか"], sentence_kaki: "（うえ）を むいて あるこう" },
-                { kanji: "森", term: 2, yomi: "もり", sentence_yomi: "深い 【森】の なか", target_yomi: "もり", yomi_options: ["もり", "しん", "はやし", "き"], sentence_kaki: "ふかい （もり）の なか" },
-                { kanji: "人", term: 2, yomi: "ひと", sentence_yomi: "たくさんの 【人】", target_yomi: "ひと", yomi_options: ["ひと", "じん", "にん", "こ"], sentence_kaki: "たくさんの （ひと）" },
-                { kanji: "水", term: 2, yomi: "みず", sentence_yomi: "つめたい 【水】を のむ", target_yomi: "みず", yomi_options: ["みず", "すい", "おゆ", "あめ"], sentence_kaki: "つめたい （みず）を のむ" },
-                { kanji: "正", term: 2, yomi: "ただ", sentence_yomi: "【正】しい こたえ", target_yomi: "ただ", yomi_options: ["ただ", "しょう", "せい", "いい"], sentence_kaki: "（ただ）しい こたえ" },
-                { kanji: "生", term: 2, yomi: "い", sentence_yomi: "【生】きものを かう", target_yomi: "い", yomi_options: ["い", "せい", "しょう", "うま"], sentence_kaki: "（い）きものを かう" },
-                { kanji: "青", term: 1, yomi: "あお", sentence_yomi: "【青】い そら", target_yomi: "あお", yomi_options: ["あお", "せい", "あか", "しろ"], sentence_kaki: "（あお）い そら" },
-                { kanji: "夕", term: 2, yomi: "ゆう", sentence_yomi: "【夕】がたに あるく", target_yomi: "ゆう", yomi_options: ["ゆう", "せき", "ばん", "よる"], sentence_kaki: "（ゆう）がたに あるく" },
-                { kanji: "石", term: 2, yomi: "いし", sentence_yomi: "丸い 【石】を ひろう", target_yomi: "いし", yomi_options: ["いし", "せき", "すな", "つち"], sentence_kaki: "まるい （いし）を ひろう" },
-                { kanji: "赤", term: 2, yomi: "あか", sentence_yomi: "【赤】い りんご", target_yomi: "あか", yomi_options: ["あか", "せき", "あお", "きいろ"], sentence_kaki: "（あか）い りんご" },
-                { kanji: "千", term: 2, yomi: "せん", sentence_yomi: "【千】えん さつ", target_yomi: "せん", yomi_options: ["せん", "ち", "ひゃく", "まん"], sentence_kaki: "（せん）えん さつ" },
-                { kanji: "川", term: 2, yomi: "かわ", sentence_yomi: "きれいな 【川】で あそぶ", target_yomi: "かわ", yomi_options: ["かわ", "せん", "うみ", "いけ"], sentence_kaki: "きれいな （かわ）で あそぶ" },
-                { kanji: "先", term: 2, yomi: "さき", sentence_yomi: "【先】に あるく", target_yomi: "さき", yomi_options: ["さき", "せん", "あと", "まえ"], sentence_kaki: "（さき）に あるく" },
-                { kanji: "早", term: 2, yomi: "はや", sentence_yomi: "【早】く おきる", target_yomi: "はや", yomi_options: ["はや", "そう", "おそ", "すぐ"], sentence_kaki: "（はや）く おきる" },
-                { kanji: "草", term: 2, yomi: "くさ", sentence_yomi: "【草】むしりを する", target_yomi: "くさ", yomi_options: ["くさ", "そう", "はな", "き"], sentence_kaki: "（くさ）むしりを する" },
-                { kanji: "足", term: 2, yomi: "あし", sentence_yomi: "【足】が はやい", target_yomi: "あし", yomi_options: ["あし", "そく", "て", "からだ"], sentence_kaki: "（あし）が はやい" },
-
-                // Term 3
-                { kanji: "村", term: 3, yomi: "むら", sentence_yomi: "しずかな 【村】", target_yomi: "むら", yomi_options: ["むら", "そん", "まち", "くに"], sentence_kaki: "しずかな （むら）" },
-                { kanji: "大", term: 3, yomi: "おお", sentence_yomi: "【大】きな つくえ", target_yomi: "おお", yomi_options: ["おお", "だい", "たい", "ちい"], sentence_kaki: "（おお）きな つくえ" },
-                { kanji: "男", term: 3, yomi: "おとこ", sentence_yomi: "【男】の こ", target_yomi: "おとこ", yomi_options: ["おとこ", "だん", "おんな", "こ"], sentence_kaki: "（おとこ）の こ" },
-                { kanji: "竹", term: 3, yomi: "たけ", sentence_yomi: "【竹】やぶを あるく", target_yomi: "たけ", yomi_options: ["たけ", "ちく", "き", "くさ"], sentence_kaki: "（たけ）やぶを あるく" },
-                { kanji: "中", term: 3, yomi: "なか", sentence_yomi: "はこの 【中】を みる", target_yomi: "なか", yomi_options: ["なか", "ちゅう", "そと", "うえ"], sentence_kaki: "はこの （なか）を みる" },
-                { kanji: "虫", term: 3, yomi: "むし", sentence_yomi: "【虫】とり に いく", target_yomi: "むし", yomi_options: ["むし", "ちゅう", "とり", "さかな"], sentence_kaki: "（むし）とり に いく" },
-                { kanji: "町", term: 3, yomi: "まち", sentence_yomi: "にぎやかな 【町】", target_yomi: "まち", yomi_options: ["まち", "ちょう", "むら", "いえ"], sentence_kaki: "にぎやかな （まち）" },
-                { kanji: "天", term: 3, yomi: "てん", sentence_yomi: "【天】きが いい", target_yomi: "てん", yomi_options: ["てん", "あめ", "そら", "かぜ"], sentence_kaki: "（てん）きが いい" },
-                { kanji: "田", term: 3, yomi: "たんぼ", sentence_yomi: "【田】んぼ で おめあて", target_yomi: "た", yomi_options: ["た", "でん", "はたけ", "やま"], sentence_kaki: "（た）んぼ で おめあて" },
-                { kanji: "土", term: 3, yomi: "つち", sentence_yomi: "【土】を いじる", target_yomi: "つち", yomi_options: ["つち", "ど", "と", "すな"], sentence_kaki: "（つち）を いじる" },
-                { kanji: "二", term: 3, yomi: "に", sentence_yomi: "【二】ひきの いぬ", target_yomi: "に", yomi_options: ["に", "ふた", "いち", "さん"], sentence_kaki: "（に）ひきの いぬ" },
-                { kanji: "日", term: 3, yomi: "ひ", sentence_yomi: "【日】が のぼる", target_yomi: "ひ", yomi_options: ["ひ", "にち", "か", "つき"], sentence_kaki: "（ひ）が のぼる" },
-                { kanji: "入", term: 3, yomi: "はい", sentence_yomi: "おふろに 【入】る", target_yomi: "はい", yomi_options: ["はい", "にゅう", "で", "い"], sentence_kaki: "おふろに （はい）る" },
-                { kanji: "年", term: 3, yomi: "とし", sentence_yomi: "【年】を とる", target_yomi: "とし", yomi_options: ["とし", "ねん", "つき", "ひ"], sentence_kaki: "（とし）を とる" },
-                { kanji: "白", term: 3, yomi: "しろ", sentence_yomi: "【白】い くも", target_yomi: "しろ", yomi_options: ["しろ", "はく", "あか", "くろ"], sentence_kaki: "（しろ）い くも" },
-                { kanji: "八", term: 3, yomi: "はち", sentence_yomi: "【八】さいの たんじょうび", target_yomi: "はち", yomi_options: ["はち", "やっ", "なな", "きゅう"], sentence_kaki: "（はち）さいの たんじょうび" },
-                { kanji: "百", term: 3, yomi: "ひゃく", sentence_yomi: "【百】てんを とる", target_yomi: "ひゃく", yomi_options: ["ひゃく", "せん", "じゅう", "まん"], sentence_kaki: "（ひゃく）てんを とる" },
-                { kanji: "文", term: 3, yomi: "ぶん", sentence_yomi: "【文】しょうを よむ", target_yomi: "ぶん", yomi_options: ["ぶん", "もん", "ふみ", "じ"], sentence_kaki: "（ぶん）しょうを よむ" },
-                { kanji: "木", term: 3, yomi: "き", sentence_yomi: "【木】の えだを ひろう", target_yomi: "き", yomi_options: ["き", "もく", "はな", "くさ"], sentence_kaki: "（き）の えだを ひろう" },
-                { kanji: "本", term: 3, yomi: "ほん", sentence_yomi: "たのしい 【本】を よむ", target_yomi: "ほん", yomi_options: ["ほん", "もと", "じ", "かみ"], sentence_kaki: "たのしい （ほん）を よむ" },
-                { kanji: "名", term: 3, yomi: "な", sentence_yomi: "お【名】まえを かく", target_yomi: "な", yomi_options: ["な", "めい", "じ", "かお"], sentence_kaki: "お（な）まえを かく" },
-                { kanji: "目", term: 3, yomi: "め", sentence_yomi: "【目】を つむる", target_yomi: "め", yomi_options: ["め", "もく", "みみ", "くち"], sentence_kaki: "（め）を つむる" },
-                { kanji: "立", term: 3, yomi: "た", sentence_yomi: "まっすぐ 【立】つ", target_yomi: "た", yomi_options: ["た", "りつ", "すわ", "ある"], sentence_kaki: "まっすぐ （た）つ" },
-                { kanji: "力", term: 3, yomi: "ちから", sentence_yomi: "【力】を あわせる", target_yomi: "ちから", yomi_options: ["ちから", "りょく", "て", "あし"], sentence_kaki: "（ちから）を あわせる" },
-                { kanji: "林", term: 3, yomi: "はやし", sentence_yomi: "静かな 【林】を あるく", target_yomi: "はやし", yomi_options: ["はやし", "りん", "もり", "き"], sentence_kaki: "しずかな （はやし）を あるく" },
-                { kanji: "六", term: 3, yomi: "ろく", sentence_yomi: "【六】さいに なる", target_yomi: "ろく", yomi_options: ["ろく", "むっ", "ご", "なな"], sentence_kaki: "（ろく）さいに なる" }
+            "1": [
+                // Grade 1 - Term 1
+                { term: 1, kanji: "一", read: "ひとつ", options: ["ひとつ", "ふたつ", "みっつ", "よっつ"], sentence: "りんごを 一つ たべる。" },
+                { term: 1, kanji: "二", read: "ふたつ", options: ["ふたつ", "ひとつ", "みっつ", "いつつ"], sentence: "みかんが 二つ ある。" },
+                { term: 1, kanji: "三", read: "みっつ", options: ["みっつ", "ふたつ", "よっつ", "むっつ"], sentence: "ケーキを 三つ かう。" },
+                { term: 1, kanji: "木", read: "き", options: ["き", "もり", "はやし", "はな"], sentence: "大きな 木を うえる。" },
+                { term: 1, kanji: "山", read: "やま", options: ["やま", "かわ", "うみ", "そら"], sentence: "たかい 山に のぼる。" },
+                { term: 1, kanji: "川", read: "かわ", options: ["かわ", "やま", "うみ", "池"], sentence: "きれいな 川が ながれる。" },
+                { term: 1, kanji: "日", read: "ひ", options: ["ひ", "つき", "ほし", "あさ"], sentence: "日がおちて 暗くなる。" },
+                { term: 1, kanji: "月", read: "つき", options: ["つき", "ひ", "ほし", "くも"], sentence: "まんげつの 月が でる。" },
+                // Grade 1 - Term 2
+                { term: 2, kanji: "水", read: "みず", options: ["みず", "ひ", "つち", "かぜ"], sentence: "冷たい 水を のむ。" },
+                { term: 2, kanji: "火", read: "ひ", options: ["ひ", "みず", "き", "いし"], sentence: "キャンプファイヤーの 火。" },
+                { term: 2, kanji: "人", read: "ひと", options: ["ひと", "いぬ", "ねこ", "とり"], sentence: "たくさんの 人が あつまる。" },
+                { term: 2, kanji: "口", read: "くち", options: ["くち", "め", "みみ", "て"], sentence: "大きな 口を あける。" },
+                { term: 2, kanji: "目", read: "め", options: ["め", "みみ", "くち", "はな"], sentence: "目をとじて かんがえる。" },
+                { term: 2, kanji: "手", read: "て", options: ["て", "あし", "め", "くち"], sentence: "手を あげて はつげんする。" },
+                { term: 2, kanji: "犬", read: "いぬ", options: ["いぬ", "ねこ", "とり", "うま"], sentence: "かわいい 犬と さんぽする。" },
+                { term: 2, kanji: "花", read: "はな", options: ["はな", "くさ", "き", "は"], sentence: "赤い 花が さいている。" },
+                // Grade 1 - Term 3
+                { term: 3, kanji: "赤", read: "あか", options: ["あか", "あお", "しろ", "くろ"], sentence: "赤いろの りんご。" },
+                { term: 3, kanji: "青", read: "あお", options: ["あお", "あか", "きいろ", "みどり"], sentence: "青い そらが ひろがる。" },
+                { term: 3, kanji: "白", read: "しろ", options: ["しろ", "くろ", "あか", "あお"], sentence: "白い くもが うかぶ。" },
+                { term: 3, kanji: "車", read: "くるま", options: ["くるま", "でんしゃ", "ふね", "ひこうき"], sentence: "赤い 車に のる。" }
             ],
-
-            // Grade 2 Key Kanji (Disambiguated context examples for 160 Kanji)
-            2: [
-                { kanji: "回", term: 1, yomi: "かい", sentence_yomi: "なん【回】も まわす", target_yomi: "かい", yomi_options: ["かい", "まわ", "かい", "えん"], sentence_kaki: "なん（かい）も まわす" },
-                { kanji: "会", term: 1, yomi: "あ", sentence_yomi: "ともだちに 【会】う", target_yomi: "あ", yomi_options: ["あ", "かい", "あつ", "あう"], sentence_kaki: "ともだちに （あ）う" },
-                { kanji: "海", term: 1, yomi: "うみ", sentence_yomi: "ひろい 【海】で およぐ", target_yomi: "うみ", yomi_options: ["うみ", "かい", "かわ", "いけ"], sentence_kaki: "ひろい （うみ）で およぐ" },
-                { kanji: "絵", term: 1, yomi: "え", sentence_yomi: "【絵】の具で かく", target_yomi: "え", yomi_options: ["え", "かい", "が", "ず"], sentence_kaki: "（え）のぐで かく" },
-                { kanji: "外", term: 1, yomi: "そと", sentence_yomi: "【外】で あそぶ", target_yomi: "そと", yomi_options: ["そ出", "がい", "なか", "うら"], sentence_kaki: "（そと）で あそぶ", target_yomi: "そと" },
-                { kanji: "楽", term: 1, yomi: "たの", sentence_yomi: "【楽】しい おまつり", target_yomi: "たの", yomi_options: ["たの", "がく", "らく", "おん"], sentence_kaki: "（たの）しい おまつり" },
-                { kanji: "間", term: 1, yomi: "あいだ", sentence_yomi: "木の 【間】を ぬける", target_yomi: "あいだ", yomi_options: ["あいだ", "かん", "ま", "なか"], sentence_kaki: "きの （あいだ）を ぬける" },
-                { kanji: "顔", term: 1, yomi: "かお", sentence_yomi: "【顔】を あらう", target_yomi: "かお", yomi_options: ["かお", "がん", "あたま", "て"], sentence_kaki: "（かお）を あらう" },
-                { kanji: "汽", term: 1, yomi: "き", sentence_yomi: "【汽】車が はしる", target_yomi: "き", yomi_options: ["き", "しゃ", "でん", "けむり"], sentence_kaki: "（き）しゃが はしる" },
-                { kanji: "記", term: 1, yomi: "き", sentence_yomi: "【記】録を とる", target_yomi: "き", yomi_options: ["き", "しる", "しょ", "ぶん"], sentence_kaki: "（き）ろくを とる" },
-                { kanji: "帰", term: 1, yomi: "かえ", sentence_yomi: "うちへ 【帰】る", target_yomi: "かえ", yomi_options: ["かえ", "き", "いき", "もど"], sentence_kaki: "うちへ （かえ）る" },
-                { kanji: "牛", term: 1, yomi: "うし", sentence_yomi: "【牛】の にゅうにゅう", target_yomi: "うし", yomi_options: ["うし", "ぎゅう", "うま", "ぶた"], sentence_kaki: "（うし）の にゅうにゅう" },
-                { kanji: "魚", term: 1, yomi: "さかな", sentence_yomi: "川の 【魚】を つる", target_yomi: "さかな", yomi_options: ["さかな", "ぎょ", "うお", "むし"], sentence_kaki: "かわの （さかな）を つる" },
-                { kanji: "京", term: 1, yomi: "きょう", sentence_yomi: "東【京】へ いく", target_yomi: "きょう", yomi_options: ["きょう", "けい", "みやこ", "とう"], sentence_kaki: "とう（きょう）へ いく" },
-                { kanji: "強", term: 1, yomi: "つよ", sentence_yomi: "【強】い かぜが ふく", target_yomi: "つよ", yomi_options: ["つよ", "きょう", "よわ", "だい"], sentence_kaki: "（つよ）い かぜが ふく" },
-                { kanji: "教", term: 1, yomi: "おし", sentence_yomi: "べんきょうを 【教】える", target_yomi: "おし", yomi_options: ["おし", "きょう", "なら", "まな"], sentence_kaki: "べんきょうを （おし）える" },
-                { kanji: "近", term: 1, yomi: "ちか", sentence_yomi: "【近】くの こうえん", target_yomi: "ちか", yomi_options: ["ちか", "きん", "とお", "となり"], sentence_kaki: "（ちか）くの こうえん" },
-                { kanji: "兄", term: 1, yomi: "あに", sentence_yomi: "やさしい 【兄】さん", target_yomi: "あに", yomi_options: ["あに", "けい", "おとうと", "あね"], sentence_kaki: "やさしい （あに）さん" },
-                { kanji: "形", term: 1, yomi: "かたち", sentence_yomi: "さんかくの 【形】", target_yomi: "かたち", yomi_options: ["かたち", "けい", "ぎょう", "いろ"], sentence_kaki: "さんかくの （かたち）" },
-                { kanji: "計", term: 1, yomi: "けい", sentence_yomi: "【計】画を たてる", target_yomi: "けい", yomi_options: ["けい", "はか", "さん", "ず"], sentence_kaki: "（けい）かくを たてる" },
-                { kanji: "風", term: 2, yomi: "かぜ", sentence_yomi: "つよい 【風】が ふく", target_yomi: "かぜ", yomi_options: ["かぜ", "ふう", "あめ", "くも"], sentence_kaki: "つよい （かぜ）が ふく" },
-                { kanji: "高", term: 2, yomi: "たか", sentence_yomi: "【高】い やま", target_yomi: "たか", yomi_options: ["たか", "こう", "ひく", "おお"], sentence_kaki: "（たか）い やま" },
-                { kanji: "国", term: 2, yomi: "くに", sentence_yomi: "とうくい 【国】へ いく", target_yomi: "くに", yomi_options: ["くに", "こく", "まち", "むら"], sentence_kaki: "とうくい （くに）へ いく" },
-                { kanji: "黒", term: 2, yomi: "くろ", sentence_yomi: "【黒】い いぬ", target_yomi: "くろ", yomi_options: ["くろ", "こく", "しろ", "あか"], sentence_kaki: "（くろ）い いぬ" },
-                { kanji: "春", term: 2, yomi: "はる", sentence_yomi: "あたたかい 【春】", target_yomi: "はる", yomi_options: ["はる", "しゅん", "なつ", "あき"], sentence_kaki: "あたたかい （はる）" },
-                { kanji: "夏", term: 2, yomi: "なつ", sentence_yomi: "あつい 【夏】やすみ", target_yomi: "なつ", yomi_options: ["なつ", "か", "ふゆ", "はる"], sentence_kaki: "あつい （なつ）やすみ" },
-                { kanji: "秋", term: 2, yomi: "あき", sentence_yomi: "すずしい 【秋】", target_yomi: "あき", yomi_options: ["あき", "しゅう", "ふゆ", "はる"], sentence_kaki: "すずしい （あき）" },
-                { kanji: "冬", term: 2, yomi: "ふゆ", sentence_yomi: "さむい 【冬】", target_yomi: "ふゆ", yomi_options: ["ふゆ", "とう", "なつ", "あき"], sentence_kaki: "さむい （ふゆ）" },
-                { kanji: "夜", term: 3, yomi: "よる", sentence_yomi: "【夜】に ほしを みる", target_yomi: "よる", yomi_options: ["よる", "や", "ひる", "ゆう"], sentence_kaki: "（よる）に ほしを みる" },
-                { kanji: "曜", term: 3, yomi: "よう", sentence_yomi: "日【曜】び に あそぶ", target_yomi: "よう", yomi_options: ["よう", "にち", "び", "げつ"], sentence_kaki: "にち（よう）び に あそぶ" }
+            "2": [
+                // Grade 2 - Term 1
+                { term: 1, kanji: "春", read: "はる", options: ["はる", "なつ", "あき", "ふゆ"], sentence: "暖かい 春が きた。" },
+                { term: 1, kanji: "夏", read: "なつ", options: ["なつ", "はる", "あき", "ふゆ"], sentence: "暑い 夏休みが たのしみだ。" },
+                { term: 1, kanji: "秋", read: "あき", options: ["あき", "はる", "なつ", "ふゆ"], sentence: "涼しい 秋の かぜ。" },
+                { term: 1, kanji: "冬", read: "ふゆ", options: ["ふゆ", "はる", "なつ", "あき"], sentence: "寒い 冬に ゆきが ふる。" },
+                { term: 1, kanji: "家", read: "いえ", options: ["いえ", "まち", "みせ", "がっこう"], sentence: "自分の 家に かえる。" },
+                { term: 1, kanji: "友", read: "とも", options: ["とも", "ひと", "あに", "おとうと"], sentence: "大切な 友達と あそぶ。" },
+                // Grade 2 - Term 2
+                { term: 2, kanji: "高", read: "たか", options: ["たか", "ひく", "なが", "みじか"], sentence: "高い たてものを 見あげる。" },
+                { term: 2, kanji: "広", read: "ひろ", options: ["ひろ", "せま", "たか", "ふか"], sentence: "広い こうえんで 走る。" },
+                { term: 2, kanji: "歩", read: "ある", options: ["ある", "はし", "とび", "のぼ"], sentence: "ゆっくり 歩いて いこう。" },
+                { term: 2, kanji: "走", read: "はし", options: ["はし", "ある", "およ", "とぶ"], sentence: "グラウンドを 走る。" },
+                // Grade 2 - Term 3
+                { term: 3, kanji: "風", read: "かぜ", options: ["かぜ", "あめ", "ゆき", "くも"], sentence: "強い 風が ふいている。" },
+                { term: 3, kanji: "海", read: "うみ", options: ["うみ", "かわ", "みずうみ", "いけ"], sentence: "青い 海で あそぶ。" }
             ],
-
-            // Grade 3 Key Kanji (Context Disambiguated)
-            3: [
-                { kanji: "階", term: 1, yomi: "かい", sentence_yomi: "【階】だん を のぼる", target_yomi: "かい", yomi_options: ["かい", "がい", "だん", "きざし"], sentence_kaki: "（かい）だん を のぼる" },
-                { kanji: "館", term: 1, yomi: "かん", sentence_yomi: "図書【館】で 本を かりる", target_yomi: "かん", yomi_options: ["かん", "やかた", "とう", "しょ"], sentence_kaki: "としょ（かん）で ほんを かりる" },
-                { kanji: "感", term: 1, yomi: "かん", sentence_yomi: "【感】動 する お話", target_yomi: "かん", yomi_options: ["かん", "かんが", "おも", "こころ"], sentence_kaki: "（かん）どう する おはなし" },
-                { kanji: "漢", term: 1, yomi: "かん", sentence_yomi: "【漢】字 の ドリル", target_yomi: "かん", yomi_options: ["かん", "じ", "あざ", "ぶん"], sentence_kaki: "（かん）じ の ドリル" },
-                { kanji: "期", term: 1, yomi: "き", sentence_yomi: "一学【期】の おわり", target_yomi: "き", yomi_options: ["き", "ご", "とき", "かん"], sentence_kaki: "いちがく（き）の おわり" },
-                { kanji: "服", term: 2, yomi: "ふく", sentence_yomi: "あたたかい 【服】を きる", target_yomi: "ふく", yomi_options: ["ふく", "き", "ころも", "しょう"], sentence_kaki: "あたたかい （ふく）を きる" },
-                { kanji: "旅", term: 2, yomi: "たび", sentence_yomi: "かぞくで 【旅】に でる", target_yomi: "たび", yomi_options: ["たび", "りょ", "みち", "さんぽ"], sentence_kaki: "かぞくで （たび）に でる" },
-                { kanji: "緑", term: 3, yomi: "みどり", sentence_yomi: "【緑】いろの はっぱ", target_yomi: "みどり", yomi_options: ["みどり", "りょく", "あお", "きいろ"], sentence_kaki: "（みどり）いろの はっぱ" },
-                { kanji: "題", term: 3, yomi: "だい", sentence_yomi: "宿【題】を おわらせる", target_yomi: "だい", yomi_options: ["だい", "もん", "とう", "もく"], sentence_kaki: "しゅく（だい）を おわらせる" }
+            "3": [
+                // Grade 3 - Term 1
+                { term: 1, kanji: "港", read: "みなと", options: ["みなと", "うみ", "ふね", "まち"], sentence: "船が 港に とまる。" },
+                { term: 1, kanji: "旅", read: "たび", options: ["たび", "さんぽ", "ドライブ", "あそび"], sentence: "家族で 楽しい 旅に でる。" },
+                { term: 1, kanji: "館", read: "かん", options: ["かん", "いえ", "みせ", "えき"], sentence: "としょ館で 本を かりる。" },
+                { term: 1, kanji: "服", read: "ふく", options: ["ふく", "くつ", "ぼうし", "かばん"], sentence: "あたたかい 服を きる。" },
+                // Grade 3 - Term 2
+                { term: 2, kanji: "温", read: "あたた", options: ["あたた", "つめた", "あつ", "さむ"], sentence: "温かい お湯に つかる。" },
+                { term: 2, kanji: "緑", read: "みどり", options: ["みどり", "あか", "あお", "きいろ"], sentence: "緑色の はっぱ。" },
+                // Grade 3 - Term 3
+                { term: 3, kanji: "洋", read: "よう", options: ["よう", "わ", "ちゅう", "かん"], sentence: "洋服を かいに いく。" },
+                { term: 3, kanji: "命", read: "いのち", options: ["いのち", "からだ", "こころ", "ちから"], sentence: "命を 大切に しよう。" }
             ]
         };
 
-        // Global App State
-        let currentGrade = 1;
-        let currentTerm = 0; // 0 = all
-        let currentMode = 'yomi'; // 'yomi' or 'kaki'
-        let currentQuestionsList = [];
-        let currentIndex = 0;
-        let userScores = { yomiStars: {}, kakiMedals: {} };
+        /* ====================================================================
+           2. GLOBAL APP STATE & PERSISTENCE
+           ==================================================================== */
+        const STORAGE_KEY = "kanji_master_drill_v3_stats";
+        let stats = {
+            readStars: 0,
+            readMedals: 0,
+            writeStars: 0,
+            writeMedals: 0
+        };
 
-        // Tone.js Synthesizer Sound FX Engine
-        const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let sessionCorrectCount = 0;
+        let isAudioEnabled = true;
+        let isGuideKanjiVisible = false;
+
+        // Canvas state variables
+        let canvas, ctx;
+        let isDrawing = false;
+        let strokeHistory = [];
+        let currentStroke = [];
+
+        /* ====================================================================
+           3. SOUND EFFECTS SYNTHESIS (WEB AUDIO API)
+           ==================================================================== */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
 
         function playSound(type) {
+            if (!isAudioEnabled) return;
             try {
-                if (Tone.context.state !== 'running') {
-                    Tone.start();
-                }
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const now = audioCtx.currentTime;
+
                 if (type === 'correct') {
-                    synth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+                    const osc1 = audioCtx.createOscillator();
+                    const osc2 = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc1.type = 'sine';
+                    osc2.type = 'sine';
+                    osc1.frequency.setValueAtTime(523.25, now); // C5
+                    osc1.frequency.setValueAtTime(659.25, now + 0.09); // E5
+                    osc2.frequency.setValueAtTime(1046.50, now + 0.09); // C6
+
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+                    osc1.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc1.start(now);
+                    osc2.start(now + 0.09);
+                    osc1.stop(now + 0.45);
+                    osc2.stop(now + 0.45);
                 } else if (type === 'wrong') {
-                    synth.triggerAttackRelease(["F3", "D3"], "8n");
-                } else if (type === 'click') {
-                    synth.triggerAttackRelease("G4", "16n");
-                } else if (type === 'fanfare') {
-                    synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n");
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(190, now);
+                    osc.frequency.setValueAtTime(140, now + 0.12);
+
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'pop') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(850, now + 0.07);
+
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.07);
                 }
             } catch (e) {
-                console.log("Audio play suppressed");
+                console.warn("Audio playback failed:", e);
             }
         }
 
-        // Initialize App on DOM Load
+        function toggleAudio() {
+            isAudioEnabled = !isAudioEnabled;
+            document.getElementById('audioToggleBtn').innerText = isAudioEnabled ? "🔊" : "🔇";
+        }
+
+        /* ====================================================================
+           4. APP LIFECYCLE & INITIALIZATION
+           ==================================================================== */
         window.addEventListener('DOMContentLoaded', () => {
-            loadUserScores();
-            initializeQuestions();
-            setupCanvas();
-            renderQuestion();
-            updateProgressBadges();
+            loadStatsFromStorage();
+            initCanvas();
+
+            // Event listeners for dropdown filters
+            document.getElementById('gradeSelect').addEventListener('change', startNewSession);
+            document.getElementById('termSelect').addEventListener('change', startNewSession);
+            document.getElementById('modeSelect').addEventListener('change', startNewSession);
+
+            startNewSession();
         });
 
-        function loadUserScores() {
+        function loadStatsFromStorage() {
             try {
-                const saved = localStorage.getItem('kanji_master_scores_v2');
-                if (saved) {
-                    userScores = JSON.parse(saved);
-                }
+                const data = localStorage.getItem(STORAGE_KEY);
+                if (data) stats = Object.assign(stats, JSON.parse(data));
             } catch (e) {
-                console.warn('LocalStorage unavailable');
+                console.warn("Could not load stats from localStorage:", e);
             }
+            updateStatsDisplay();
         }
 
-        function saveUserScores() {
+        function saveStatsToStorage() {
             try {
-                localStorage.setItem('kanji_master_scores_v2', JSON.stringify(userScores));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
             } catch (e) {
-                console.warn('LocalStorage save failed');
+                console.warn("Could not save stats to localStorage:", e);
             }
-            updateProgressBadges();
+            updateStatsDisplay();
         }
 
-        function updateProgressBadges() {
-            let totalStars = Object.keys(userScores.yomiStars || {}).length;
-            let totalMedals = Object.keys(userScores.kakiMedals || {}).length;
-
-            document.getElementById('starCounter').innerText = totalStars;
-            document.getElementById('medalCounter').innerText = totalMedals;
+        function updateStatsDisplay() {
+            document.getElementById('readStarsCount').innerText = stats.readStars;
+            document.getElementById('readMedalsCount').innerText = stats.readMedals;
+            document.getElementById('writeStarsCount').innerText = stats.writeStars;
+            document.getElementById('writeMedalsCount').innerText = stats.writeMedals;
         }
 
-        function initializeQuestions() {
-            let fullGradeList = KANJI_DATABASE[currentGrade] || KANJI_DATABASE[1];
-            
-            if (currentTerm === 0) {
-                currentQuestionsList = fullGradeList;
+        /* ====================================================================
+           5. DRILL SESSION ENGINE
+           ==================================================================== */
+        function getQuestionPool(grade, term) {
+            let pool = KANJI_DATABASE[grade] || KANJI_DATABASE["1"];
+
+            if (term !== "all") {
+                const termNum = parseInt(term, 10);
+                const filtered = pool.filter(q => q.term === termNum);
+                if (filtered.length > 0) pool = filtered;
+            }
+
+            return pool;
+        }
+
+        function startNewSession() {
+            const grade = document.getElementById('gradeSelect').value;
+            const term = document.getElementById('termSelect').value;
+            const pool = getQuestionPool(grade, term);
+
+            // Shuffle and pick 10 questions
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            currentQuestions = [];
+            while (currentQuestions.length < 10) {
+                currentQuestions.push(...shuffled);
+            }
+            currentQuestions = currentQuestions.slice(0, 10);
+
+            currentQuestionIndex = 0;
+            sessionCorrectCount = 0;
+
+            renderCurrentQuestion();
+        }
+
+        function restartSession() {
+            document.getElementById('sessionSummaryModal').classList.add('hidden');
+            startNewSession();
+        }
+
+        function renderCurrentQuestion() {
+            const mode = document.getElementById('modeSelect').value;
+            const q = currentQuestions[currentQuestionIndex];
+
+            // Progress bar
+            document.getElementById('currentQIndex').innerText = currentQuestionIndex + 1;
+            const progressPct = (currentQuestionIndex / 10) * 100;
+            document.getElementById('sessionProgressBar').style.width = `${progressPct}%`;
+
+            const sentenceContainer = document.getElementById('sentenceContainer');
+            const instructionPrompt = document.getElementById('instructionPrompt');
+
+            if (mode === 'read') {
+                // READING MODE: Target Kanji highlighted in sentence. NO SPOILER HINT!
+                document.getElementById('readingModeArea').classList.remove('hidden');
+                document.getElementById('writingModeArea').classList.add('hidden');
+
+                const highlightedSentence = q.sentence.replace(
+                    q.kanji,
+                    `<span class="text-rose-600 font-extrabold underline decoration-wavy decoration-rose-400 decoration-2 px-1 text-2xl sm:text-3xl">${q.kanji}</span>`
+                );
+                sentenceContainer.innerHTML = highlightedSentence;
+                instructionPrompt.innerText = "赤い 漢字の「よみかた」を えらんでね！";
+
+                renderReadingOptions(q);
+
             } else {
-                currentQuestionsList = fullGradeList.filter(q => q.term === parseInt(currentTerm));
-            }
+                // WRITING MODE: Replace target Kanji with hiragana reading in brackets.
+                document.getElementById('readingModeArea').classList.add('hidden');
+                document.getElementById('writingModeArea').classList.remove('hidden');
 
-            if (currentQuestionsList.length === 0) {
-                currentQuestionsList = fullGradeList;
-            }
+                const hiraganaSentence = q.sentence.replace(
+                    q.kanji,
+                    `<span class="bg-amber-100 text-amber-900 border-2 border-amber-400 rounded-lg px-2 py-0.5 text-2xl sm:text-3xl font-extrabold shadow-sm">【${q.read}】</span>`
+                );
+                sentenceContainer.innerHTML = hiraganaSentence;
+                instructionPrompt.innerText = `四角の中に「${q.read}」を 漢字で 書いてね！`;
 
-            currentIndex = 0;
-        }
-
-        function changeFilter() {
-            currentGrade = parseInt(document.getElementById('gradeSelect').value);
-            currentTerm = parseInt(document.getElementById('termSelect').value);
-            initializeQuestions();
-            renderQuestion();
-        }
-
-        function setMode(mode) {
-            playSound('click');
-            currentMode = mode;
-            
-            const btnYomi = document.getElementById('btnYomiMode');
-            const btnKaki = document.getElementById('btnKakiMode');
-            const yomiSec = document.getElementById('yomiSection');
-            const kakiSec = document.getElementById('kakiSection');
-            const modeBadge = document.getElementById('currentModeBadge');
-
-            if (mode === 'yomi') {
-                btnYomi.className = "px-3 py-1 rounded-lg text-xs md:text-sm font-black transition-all bg-amber-500 text-white shadow-sm";
-                btnKaki.className = "px-3 py-1 rounded-lg text-xs md:text-sm font-black transition-all text-amber-900 hover:bg-amber-300";
-                yomiSec.classList.remove('hidden');
-                kakiSec.classList.add('hidden');
-                modeBadge.className = "bg-sky-500 text-white font-extrabold px-3 py-1 rounded-full text-xs md:text-sm";
-                modeBadge.innerText = "📖 よみモード";
-            } else {
-                btnKaki.className = "px-3 py-1 rounded-lg text-xs md:text-sm font-black transition-all bg-amber-500 text-white shadow-sm";
-                btnYomi.className = "px-3 py-1 rounded-lg text-xs md:text-sm font-black transition-all text-amber-900 hover:bg-amber-300";
-                kakiSec.classList.remove('hidden');
-                yomiSec.classList.add('hidden');
-                modeBadge.className = "bg-amber-500 text-white font-extrabold px-3 py-1 rounded-full text-xs md:text-sm";
-                modeBadge.innerText = "✍️ かきモード";
-            }
-
-            renderQuestion();
-        }
-
-        function renderQuestion() {
-            if (!currentQuestionsList || currentQuestionsList.length === 0) return;
-
-            const q = currentQuestionsList[currentIndex];
-            document.getElementById('progressText').innerText = `だい ${currentIndex + 1} とい / ${currentQuestionsList.length} とい`;
-
-            if (currentMode === 'yomi') {
-                renderYomiQuestion(q);
-            } else {
-                renderKakiQuestion(q);
+                // Set up target guide overlay
+                document.getElementById('guideKanjiOverlay').innerText = q.kanji;
+                clearWritingCanvas();
             }
         }
 
-        function renderYomiQuestion(q) {
-            // Context Disambiguated Sentence display with target highlighted
-            let formattedSentence = q.sentence_yomi.replace(/【(.*?)】/g, '<span class="highlight-kanji pulse-target">$1</span>');
-            document.getElementById('yomiSentence').innerHTML = formattedSentence;
+        /* ====================================================================
+           6. READING MODE LOGIC & 3-CHOICE HELPER
+           ==================================================================== */
+        function renderReadingOptions(q) {
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
 
-            // Prepare 4 choices
-            let options = [...q.yomi_options];
-            options.sort(() => Math.random() - 0.5);
+            // Reset 3-Choice Button
+            const btnNarrow3 = document.getElementById('btnNarrow3');
+            btnNarrow3.disabled = false;
+            btnNarrow3.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnNarrow3.innerHTML = '<span>💡 3択にしぼる</span>';
 
-            const optionsGrid = document.getElementById('yomiOptions');
-            optionsGrid.innerHTML = '';
+            // Options setup
+            let options = q.options ? [...q.options] : [q.read];
+            if (!options.includes(q.read)) options.push(q.read);
+
+            const dummyReadings = ["ひとつ", "やま", "かわ", "あか", "あお", "しろ", "たか", "みず", "はる", "うみ"];
+            while (options.length < 4) {
+                const dummy = dummyReadings[Math.floor(Math.random() * dummyReadings.length)];
+                if (!options.includes(dummy)) options.push(dummy);
+            }
+            options = options.slice(0, 4).sort(() => Math.random() - 0.5);
 
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = "yomi-option-btn bg-slate-100 hover:bg-sky-100 text-slate-800 font-extrabold text-xl md:text-2xl py-3 px-4 rounded-2xl border-2 border-slate-200 shadow-sm transition-all pop-hover flex items-center justify-center";
+                btn.className = "option-btn bg-white hover:bg-amber-100/80 border-2 border-amber-300 text-amber-900 font-extrabold text-lg sm:text-xl py-3 px-4 rounded-2xl shadow transition-all active:scale-95 flex items-center justify-center gap-2";
+                btn.dataset.read = opt;
                 btn.innerText = opt;
-                btn.onclick = () => checkYomiAnswer(opt, q.target_yomi, btn);
-                optionsGrid.appendChild(btn);
+                btn.onclick = () => handleReadingSelection(opt, q.read, btn);
+                grid.appendChild(btn);
             });
-
-            // Reset hint state
-            document.getElementById('hintBtn').disabled = false;
-            document.getElementById('hintBtn').classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
-        function useYomiHint() {
-            playSound('click');
-            const q = currentQuestionsList[currentIndex];
-            const buttons = Array.from(document.querySelectorAll('.yomi-option-btn'));
-            
-            // Find incorrect buttons
-            let wrongButtons = buttons.filter(b => b.innerText !== q.target_yomi);
-            wrongButtons.sort(() => Math.random() - 0.5);
+        function apply3ChoiceHelper() {
+            const q = currentQuestions[currentQuestionIndex];
+            const buttons = Array.from(document.querySelectorAll('.option-btn'));
+            const wrongButtons = buttons.filter(b => b.dataset.read !== q.read && !b.disabled);
 
-            // Hide 2 wrong options to reduce choices to 2
-            if (wrongButtons.length >= 2) {
-                wrongButtons[0].style.visibility = 'hidden';
-                wrongButtons[1].style.visibility = 'hidden';
+            if (wrongButtons.length > 0) {
+                const btnToRemove = wrongButtons[Math.floor(Math.random() * wrongButtons.length)];
+                btnToRemove.disabled = true;
+                btnToRemove.classList.add('opacity-30', 'line-through', 'bg-slate-100');
+                btnToRemove.classList.remove('hover:bg-amber-100/80', 'active:scale-95');
+
+                playSound('pop');
+
+                const btnNarrow3 = document.getElementById('btnNarrow3');
+                btnNarrow3.disabled = true;
+                btnNarrow3.classList.add('opacity-50', 'cursor-not-allowed');
+                btnNarrow3.innerText = '3択にしました！';
             }
-
-            const hintBtn = document.getElementById('hintBtn');
-            hintBtn.disabled = true;
-            hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
-        function checkYomiAnswer(selected, target, btnElement) {
-            if (selected === target) {
+        function handleReadingSelection(selected, correct, btnElement) {
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                btnElement.classList.remove('bg-white', 'border-amber-300');
+                btnElement.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600', 'scale-105');
                 playSound('correct');
-                btnElement.classList.remove('bg-slate-100', 'hover:bg-sky-100');
-                btnElement.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
 
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                stats.readStars += 1;
+                sessionCorrectCount += 1;
+                saveStatsToStorage();
 
-                // Record Star
-                const qKey = `${currentGrade}_${currentQuestionsList[currentIndex].kanji}`;
-                userScores.yomiStars[qKey] = true;
-                saveUserScores();
-
-                setTimeout(() => {
-                    nextQuestion();
-                }, 800);
+                setTimeout(() => advanceNextQuestion(), 900);
             } else {
+                btnElement.classList.remove('bg-white', 'border-amber-300');
+                btnElement.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
                 playSound('wrong');
-                btnElement.classList.remove('bg-slate-100');
-                btnElement.classList.add('bg-rose-100', 'text-rose-600', 'border-rose-300');
-                btnElement.disabled = true;
+
+                allButtons.forEach(b => {
+                    if (b.dataset.read === correct) {
+                        b.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+                    }
+                });
+
+                setTimeout(() => advanceNextQuestion(), 1500);
             }
         }
 
-        let canvas, ctx, modelCanvas, modelCtx;
-        let isDrawing = false;
-        let showGuide = true;
-
-        function setupCanvas() {
-            canvas = document.getElementById('writeCanvas');
+        /* ====================================================================
+           7. HANDWRITING CANVAS & POINTER EVENTS ENGINE
+           ==================================================================== */
+        function initCanvas() {
+            canvas = document.getElementById('handwritingCanvas');
             ctx = canvas.getContext('2d');
 
-            modelCanvas = document.getElementById('modelCanvas');
-            modelCtx = modelCanvas.getContext('2d');
+            resizeCanvasBuffer();
+            window.addEventListener('resize', resizeCanvasBuffer);
 
-            // Set stroke styles
-            ctx.lineWidth = 14;
+            // Pointer Events for reliable Touch, Stylus, and Mouse drawing
+            canvas.addEventListener('pointerdown', handlePointerDown);
+            canvas.addEventListener('pointermove', handlePointerMove);
+            canvas.addEventListener('pointerup', handlePointerUp);
+            canvas.addEventListener('pointercancel', handlePointerUp);
+        }
+
+        function resizeCanvasBuffer() {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
+            // Maintain crisp 2x resolution buffer
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            redrawCanvasFromHistory();
+        }
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        function handlePointerDown(e) {
+            canvas.setPointerCapture(e.pointerId);
+            isDrawing = true;
+            const pos = getCanvasCoords(e);
+            currentStroke = [pos];
+
+            ctx.lineWidth = 20; // Internal buffer thickness
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#1e293b';
 
-            // Drawing event listeners for mouse and touch
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseleave', stopDrawing);
-
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(getTouchPos(e)); }, { passive: false });
-            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(getTouchPos(e)); }, { passive: false });
-            canvas.addEventListener('touchend', stopDrawing);
-        }
-
-        function getTouchPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            return {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            };
-        }
-
-        function startDrawing(e) {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
             ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.moveTo(pos.x, pos.y);
+            // Draw a dot immediately on pointer down
+            ctx.arc(pos.x, pos.y, 0.1, 0, Math.PI * 2);
             ctx.stroke();
         }
 
-        function stopDrawing() {
-            isDrawing = false;
+        function handlePointerMove(e) {
+            if (!isDrawing) return;
+            const pos = getCanvasCoords(e);
+            currentStroke.push(pos);
+
+            ctx.beginPath();
+            const lastPos = currentStroke[currentStroke.length - 2] || pos;
+            ctx.moveTo(lastPos.x, lastPos.y);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
         }
 
-        function clearCanvas() {
-            playSound('click');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('kakiFeedbackArea').classList.add('hidden');
-        }
-
-        function toggleModelGuide() {
-            playSound('click');
-            showGuide = !showGuide;
-            document.getElementById('guideStatus').innerText = showGuide ? 'ON' : 'OFF';
-            renderModelGuide();
-        }
-
-        function renderKakiQuestion(q) {
-            // Context Disambiguated Sentence display with hiragana target in parenthesis
-            let formattedSentence = q.sentence_kaki.replace(/（(.*?)）/g, '（<span class="highlight-hiragana pulse-target">$1</span>）');
-            document.getElementById('kakiSentence').innerHTML = formattedSentence;
-
-            clearCanvas();
-            renderModelGuide();
-        }
-
-        function renderModelGuide() {
-            modelCtx.clearRect(0, 0, modelCanvas.width, modelCanvas.height);
-            if (!showGuide) return;
-
-            const q = currentQuestionsList[currentIndex];
-            modelCtx.font = "bold 170px 'M PLUS Rounded 1c', sans-serif";
-            modelCtx.fillStyle = "rgba(203, 213, 225, 0.4)";
-            modelCtx.textAlign = "center";
-            modelCtx.textBaseline = "middle";
-            modelCtx.fillText(q.kanji, modelCanvas.width / 2, modelCanvas.height / 2 + 10);
-        }
-
-        function checkHandwriting() {
-            // Generate canvas pixel analysis for matching ratio
-            const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            // Render kanji onto offscreen reference canvas
-            const refCanvas = document.createElement('canvas');
-            refCanvas.width = canvas.width;
-            refCanvas.height = canvas.height;
-            const refCtx = refCanvas.getContext('2d');
-            
-            const q = currentQuestionsList[currentIndex];
-            refCtx.font = "bold 170px 'M PLUS Rounded 1c', sans-serif";
-            refCtx.fillStyle = "#000000";
-            refCtx.textAlign = "center";
-            refCtx.textBaseline = "middle";
-            refCtx.fillText(q.kanji, refCanvas.width / 2, refCanvas.height / 2 + 10);
-
-            const refImgData = refCtx.getImageData(0, 0, refCanvas.width, refCanvas.height);
-
-            // Calculate bounding pixel similarity ratio
-            let userPixels = 0;
-            let matchedPixels = 0;
-
-            for (let i = 0; i < userImgData.data.length; i += 4) {
-                const userAlpha = userImgData.data[i + 3];
-                const refAlpha = refImgData.data[i + 3];
-
-                if (userAlpha > 50) {
-                    userPixels++;
-                    if (refAlpha > 50) {
-                        matchedPixels++;
-                    }
+        function handlePointerUp(e) {
+            if (isDrawing) {
+                isDrawing = false;
+                if (currentStroke.length > 0) {
+                    strokeHistory.push(currentStroke);
+                    currentStroke = [];
                 }
-            }
-
-            let matchRate = userPixels > 0 ? (matchedPixels / userPixels) * 100 : 0;
-
-            const feedbackArea = document.getElementById('kakiFeedbackArea');
-            const scoreBadge = document.getElementById('kakiScoreBadge');
-            feedbackArea.classList.remove('hidden');
-
-            if (matchRate >= 60 || userPixels > 1000) { // Smart heuristic score allowance
-                playSound('correct');
-                scoreBadge.innerHTML = `<span class="text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i>すごく じょうず！ (一致率: ${Math.min(98, Math.round(matchRate + 30))}%)</span>`;
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-                
-                // Record Medal
-                const qKey = `${currentGrade}_${q.kanji}`;
-                userScores.kakiMedals[qKey] = true;
-                saveUserScores();
-
-                setTimeout(() => {
-                    nextQuestion();
-                }, 1200);
-            } else {
-                playSound('wrong');
-                scoreBadge.innerHTML = `<span class="text-amber-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i>かたちを たしかめよう (一致率: ${Math.round(matchRate)}%)</span>`;
+                try {
+                    canvas.releasePointerCapture(e.pointerId);
+                } catch (err) {}
             }
         }
 
-        function retryKaki() {
-            clearCanvas();
+        function clearWritingCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            strokeHistory = [];
+            currentStroke = [];
         }
 
-        function forcePassKaki() {
-            playSound('correct');
-            const q = currentQuestionsList[currentIndex];
-            const qKey = `${currentGrade}_${q.kanji}`;
-            userScores.kakiMedals[qKey] = true;
-            saveUserScores();
-            confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
-            nextQuestion();
+        function undoCanvasStroke() {
+            if (strokeHistory.length === 0) return;
+            strokeHistory.pop();
+            redrawCanvasFromHistory();
         }
 
-        function nextQuestion() {
-            currentIndex = (currentIndex + 1) % currentQuestionsList.length;
-            renderQuestion();
-        }
+        function redrawCanvasFromHistory() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 20;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#1e293b';
 
-        function openProgressModal() {
-            playSound('click');
-            const modal = document.getElementById('progressModal');
-            const grid = document.getElementById('kanjiGrid');
-            grid.innerHTML = '';
-
-            const fullGradeList = KANJI_DATABASE[currentGrade] || KANJI_DATABASE[1];
-            let filterText = `${currentGrade}年生・`;
-            filterText += currentTerm === 0 ? 'すべての学期' : `${currentTerm}学期`;
-            document.getElementById('modalFilterText').innerText = filterText;
-
-            let clearedCount = 0;
-
-            fullGradeList.forEach((q, idx) => {
-                const qKey = `${currentGrade}_${q.kanji}`;
-                const hasStar = !!(userScores.yomiStars && userScores.yomiStars[qKey]);
-                const hasMedal = !!(userScores.kakiMedals && userScores.kakiMedals[qKey]);
-
-                if (hasStar || hasMedal) clearedCount++;
-
-                const card = document.createElement('div');
-                card.className = "bg-amber-50 rounded-2xl p-2 border-2 border-amber-200 flex flex-col items-center justify-between cursor-pointer pop-hover shadow-sm hover:border-amber-400";
-                card.onclick = () => {
-                    currentIndex = idx;
-                    renderQuestion();
-                    closeProgressModal();
-                };
-
-                card.innerHTML = `
-                    <div class="text-2xl font-extrabold text-slate-800">${q.kanji}</div>
-                    <div class="flex space-x-1 text-xs mt-1">
-                        <span class="${hasStar ? 'text-amber-500' : 'text-slate-300'}"><i class="fa-solid fa-star"></i></span>
-                        <span class="${hasMedal ? 'text-yellow-600' : 'text-slate-300'}"><i class="fa-solid fa-medal"></i></span>
-                    </div>
-                `;
-                grid.appendChild(card);
+            strokeHistory.forEach(stroke => {
+                if (stroke.length === 0) return;
+                ctx.beginPath();
+                ctx.moveTo(stroke[0].x, stroke[0].y);
+                stroke.forEach(pt => ctx.lineTo(pt.x, pt.y));
+                ctx.stroke();
             });
+        }
 
-            document.getElementById('modalCompletionText').innerText = `クリア: ${clearedCount} / ${fullGradeList.length}`;
+        function toggleKanjiGuide() {
+            isGuideKanjiVisible = !isGuideKanjiVisible;
+            const overlay = document.getElementById('guideKanjiOverlay');
+            const icon = document.getElementById('guideIcon');
+            const text = document.getElementById('guideText');
+
+            if (isGuideKanjiVisible) {
+                overlay.classList.remove('hidden');
+                icon.innerText = "🙈";
+                text.innerText = "お手本をかくす";
+            } else {
+                overlay.classList.add('hidden');
+                icon.innerText = "👀";
+                text.innerText = "お手本を表示";
+            }
+        }
+
+        /* ====================================================================
+           8. WRITING AUTO-GRADING & PIXEL OVERLAP CALCULATION
+           ==================================================================== */
+        function submitWritingAnswer() {
+            if (strokeHistory.length === 0) {
+                playSound('wrong');
+                return;
+            }
+
+            const q = currentQuestions[currentQuestionIndex];
+            const score = calculateStrokeMatchScore(q.kanji);
+
+            // Snapshot user drawing
+            const userSnap = document.getElementById('userCanvasSnapshot');
+            userSnap.src = canvas.toDataURL();
+
+            document.getElementById('correctKanjiDisplay').innerText = q.kanji;
+            document.getElementById('matchScoreBadge').innerText = `${score}%`;
+
+            const modal = document.getElementById('writingFeedbackModal');
+            const title = document.getElementById('feedbackTitle');
+            const autoPassActions = document.getElementById('autoPassActions');
+            const selfCheckActions = document.getElementById('selfCheckActions');
+
+            if (score >= 80) {
+                // 80%+ Auto Pass
+                playSound('correct');
+                title.innerText = "💮 たいへん よくできました！";
+                autoPassActions.classList.remove('hidden');
+                selfCheckActions.classList.add('hidden');
+
+                stats.writeStars += 1;
+                sessionCorrectCount += 1;
+                saveStatsToStorage();
+            } else {
+                // Below 80%: Self-Check Mode
+                playSound('wrong');
+                title.innerText = "かたちの確認（かくにん）";
+                autoPassActions.classList.add('hidden');
+                selfCheckActions.classList.remove('hidden');
+            }
+
             modal.classList.remove('hidden');
         }
 
-        function closeProgressModal() {
-            playSound('click');
-            document.getElementById('progressModal').classList.add('hidden');
+        function calculateStrokeMatchScore(targetKanji) {
+            // Offscreen target canvas
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = 160;
+            offCanvas.height = 160;
+            const offCtx = offCanvas.getContext('2d');
+
+            offCtx.fillStyle = '#ffffff';
+            offCtx.fillRect(0, 0, 160, 160);
+            offCtx.fillStyle = '#000000';
+            offCtx.font = "bold 120px 'Hiragino Sans', 'Yu Gothic', sans-serif";
+            offCtx.textAlign = 'center';
+            offCtx.textBaseline = 'middle';
+            offCtx.fillText(targetKanji, 80, 80);
+
+            // Offscreen scaled user canvas
+            const userCanvas = document.createElement('canvas');
+            userCanvas.width = 160;
+            userCanvas.height = 160;
+            const uCtx = userCanvas.getContext('2d');
+            uCtx.fillStyle = '#ffffff';
+            uCtx.fillRect(0, 0, 160, 160);
+            uCtx.drawImage(canvas, 0, 0, 160, 160);
+
+            const targetData = offCtx.getImageData(0, 0, 160, 160).data;
+            const userData = uCtx.getImageData(0, 0, 160, 160).data;
+
+            let intersection = 0;
+            let targetPixels = 0;
+            let userPixels = 0;
+
+            for (let i = 0; i < targetData.length; i += 4) {
+                const isTargetDark = targetData[i] < 128;
+                const isUserDark = userData[i] < 128;
+
+                if (isTargetDark) targetPixels++;
+                if (isUserDark) userPixels++;
+                if (isTargetDark && isUserDark) intersection++;
+            }
+
+            if (targetPixels === 0 || userPixels === 0) return 0;
+
+            const recall = intersection / targetPixels;
+            const precision = intersection / userPixels;
+            const f1 = (2 * recall * precision) / (recall + precision || 1);
+
+            let score = Math.round(f1 * 100 * 1.3); // Tolerance scale for kids
+            return Math.min(99, Math.max(25, score));
         }
 
-        function resetCurrentProgress() {
-            if (confirm(`${currentGrade}年生のクリアデータ（スター・メダル）をリセットしますか？`)) {
-                const fullGradeList = KANJI_DATABASE[currentGrade] || KANJI_DATABASE[1];
-                fullGradeList.forEach(q => {
-                    const qKey = `${currentGrade}_${q.kanji}`;
-                    delete userScores.yomiStars[qKey];
-                    delete userScores.kakiMedals[qKey];
-                });
-                saveUserScores();
-                openProgressModal();
+        function gradeWritingManual(isCorrect) {
+            document.getElementById('writingFeedbackModal').classList.add('hidden');
+            if (isCorrect) {
+                playSound('correct');
+                stats.writeStars += 1;
+                sessionCorrectCount += 1;
+                saveStatsToStorage();
+                advanceNextQuestion();
+            } else {
+                clearWritingCanvas();
             }
+        }
+
+        /* ====================================================================
+           9. QUESTION ADVANCEMENT & DRILL COMPLETION
+           ==================================================================== */
+        function advanceNextQuestion() {
+            document.getElementById('writingFeedbackModal').classList.add('hidden');
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < 10) {
+                renderCurrentQuestion();
+            } else {
+                finishDrillSession();
+            }
+        }
+
+        function finishDrillSession() {
+            const mode = document.getElementById('modeSelect').value;
+
+            if (mode === 'read') {
+                stats.readMedals += 1;
+            } else {
+                stats.writeMedals += 1;
+            }
+            saveStatsToStorage();
+
+            document.getElementById('summaryCorrectCount').innerText = sessionCorrectCount;
+            document.getElementById('sessionSummaryModal').classList.remove('hidden');
+
+            playSound('correct');
+        }
+
+        function resetToHome() {
+            document.getElementById('sessionSummaryModal').classList.add('hidden');
+            document.getElementById('writingFeedbackModal').classList.add('hidden');
+            startNewSession();
         }
     </script>
 </body>
