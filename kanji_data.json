@@ -1,0 +1,28 @@
+{
+"1": [
+{ "id": 101, "term": 1, "category": "単体", "mode": "reading", "question": "「山」の よみかたは？", "options": ["やま", "かわ", "うみ", "そら"], "answer": "やま" },
+{ "id": 102, "term": 1, "category": "単体", "mode": "writing", "question": "「やま」を かんじで かこう！", "options": [], "answer": "山" },
+{ "id": 103, "term": 2, "category": "単体", "mode": "reading", "question": "「空」の よみかたは？", "options": ["そら", "あめ", "くも", "かぜ"], "answer": "そら" },
+{ "id": 104, "term": 2, "category": "単体", "mode": "writing", "question": "「そら」を かんじで かこう！", "options": [], "answer": "空" },
+{ "id": 105, "term": 1, "category": "単体", "mode": "reading", "question": "「川」の よみかたは？", "options": ["かわ", "やま", "うみ", "いけ"], "answer": "かわ" },
+{ "id": 106, "term": 1, "category": "単体", "mode": "writing", "question": "「かわ」を かんじで かこう！", "options": [], "answer": "川" },
+{ "id": 107, "term": 3, "category": "単体", "mode": "reading", "question": "「木」の よみかたは？", "options": ["き", "はな", "くさ", "もり"], "answer": "き" },
+{ "id": 108, "term": 3, "category": "単体", "mode": "writing", "question": "「き」を かんじで かこう！", "options": [], answer: "木" }
+],
+"2": [
+{ "id": 201, "term": 1, "category": "単体", "mode": "reading", "question": "「数」の よみかたは？", "options": ["かず", "かぞえる", "すう", "さつ"], "answer": "かず" },
+{ "id": 202, "term": 1, "category": "単体", "mode": "writing", "question": "「かず」を かんじで かこう！", "options": [], "answer": "数" },
+{ "id": 221, "term": 2, "category": "単体", "mode": "reading", "question": "「東」の よみかたは？", "options": ["ひがし", "にし", "みなみ", "きた"], "answer": "ひがし" },
+{ "id": 222, "term": 2, "category": "単体", "mode": "writing", "question": "「ひがし」を かんじで かこう！", "options": [], "answer": "東" },
+{ "id": 223, "term": 3, "category": "単体", "mode": "reading", "question": "「光」の よみかたは？", "options": ["ひかり", "あかり", "ほし", "かぜ"], "answer": "ひかり" },
+{ "id": 224, "term": 3, "category": "単体", "mode": "writing", "question": "「ひかり」を かんじで かこう！", "options": [], "answer": "光" }
+],
+"3": [
+{ "id": 301, "term": 1, "category": "単体", "mode": "reading", "question": "「表」の よみかたは？", "options": ["おもて", "うら", "まえ", "あたま"], "answer": "おもて" },
+{ "id": 302, "term": 1, "category": "単体", "mode": "writing", "question": "「おもて」を かんじで かこう！", "options": [], "answer": "表" },
+{ "id": 303, "term": 2, "category": "単体", "mode": "reading", "question": "「港」の よみかたは？", "options": ["みなと", "うみ", "かわ", "すいどう"], answer: "みなと" },
+{ "id": 304, "term": 2, "category": "単体", "mode": "writing", "question": "「みなと」を かんじで かこう！", "options": [], "answer": "港" },
+{ "id": 305, "term": 3, "category": "単体", "mode": "reading", "question": "「感」の よみかたは？", "options": ["かん", "おもい", "こころ", "きもち"], answer: "かん" },
+{ "id": 306, "term": 3, "category": "単体", "mode": "writing", "question": "「かん（じる）」の かんじを かこう！", "options": [], "answer": "感" }
+]
+}

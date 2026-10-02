@@ -3,29 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>小学校 漢字ドリル（1年生・2年生対応）</title>
-  <!-- ファビコン設定 -->
+  <title>小学校 漢字ドリル（1〜3年生対応）</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
   
   <style>
     :root {
-      --primary-color: #4A90E2;
-      --secondary-color: #F5A623;
-      --bg-color: #F7F9FC;
-      --card-bg: #FFFFFF;
-      --text-color: #333333;
-      --border-color: #E0E0E0;
-      --correct-color: #2ECC71;
-      --incorrect-color: #E74C3C;
-      --gold-color: #FFD700;
-      --hint-color: #9B59B6;
+      --primary-color: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-color: #f0fdf4;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+      --border-color: #e5e7eb;
+      --correct-color: #10b981;
+      --incorrect-color: #ef4444;
+      --accent-color: #f59e0b;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      font-family: "M PLUS Rounded 1c", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      user-select: none;
     }
 
     body {
@@ -35,107 +34,94 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 15px;
+      padding: 12px;
     }
 
     header {
       width: 100%;
       max-width: 600px;
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: var(--primary-color);
       margin-bottom: 8px;
     }
 
     .status-bar {
-      width: 100%;
-      max-width: 600px;
-      background: #FFF;
-      border-radius: 12px;
-      padding: 10px 15px;
       display: flex;
       justify-content: space-around;
-      align-items: center;
+      background: var(--card-bg);
+      padding: 8px 12px;
+      border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
     }
 
     .status-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-weight: bold;
-      font-size: 1.1rem;
+      gap: 4px;
     }
 
     .controls-panel {
       width: 100%;
       max-width: 600px;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
       background-color: var(--card-bg);
-      padding: 12px;
+      padding: 10px 12px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .control-group {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+      flex: 1 1 calc(33.33% - 6px);
+      min-width: 110px;
     }
 
     .control-label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: bold;
       color: #666;
       white-space: nowrap;
     }
 
-    .btn-group {
-      display: flex;
-      gap: 5px;
+    .select-option {
       width: 100%;
-    }
-
-    .btn-option {
-      flex: 1;
-      padding: 8px 4px;
+      padding: 6px 8px;
       border: 1px solid var(--border-color);
       background-color: #FFF;
       color: var(--text-color);
       border-radius: 6px;
       font-size: 0.85rem;
+      font-weight: bold;
       cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
+      outline: none;
     }
 
-    .btn-option.active {
-      background-color: var(--primary-color);
-      color: #FFF;
+    .select-option:focus {
       border-color: var(--primary-color);
-      font-weight: bold;
     }
 
     .card-container {
       width: 100%;
       max-width: 600px;
-      background: var(--card-bg);
+      background-color: var(--card-bg);
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 400px;
       position: relative;
     }
 
@@ -143,50 +129,42 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 15px;
+      gap: 6px;
+      margin-bottom: 12px;
     }
 
     .meta-top {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: bold;
-      color: #666;
+      color: #6b7280;
     }
 
     .progress-bar-container {
       width: 100%;
-      height: 10px;
-      background-color: #E0E0E0;
-      border-radius: 5px;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
       overflow: hidden;
     }
 
     .progress-bar {
       height: 100%;
       width: 0%;
-      background-color: var(--secondary-color);
+      background-color: var(--primary-color);
       transition: width 0.3s ease;
     }
 
     .question-title {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 15px;
-      min-height: 2.6rem;
+      margin: 12px 0 20px 0;
+      min-height: 2.8rem;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .reading-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
     }
 
     .options-grid {
@@ -194,66 +172,51 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       width: 100%;
+      margin-bottom: 16px;
     }
 
     .option-btn {
-      padding: 15px;
+      padding: 16px;
       font-size: 1.1rem;
-      background: #FFF;
-      border: 2px solid var(--border-color);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
       font-weight: bold;
+      border: 2px solid var(--border-color);
+      background-color: #f9fafb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60px;
     }
 
     .option-btn:hover:not(:disabled) {
       border-color: var(--primary-color);
-      background-color: #F0F7FF;
+      background-color: #eeefef;
     }
 
     .option-btn:disabled {
       cursor: not-allowed;
+      opacity: 0.6;
     }
 
-    .option-btn.removed {
-      visibility: hidden;
-      opacity: 0;
-      pointer-events: none;
+    .option-btn.correct {
+      background-color: #d1fae5;
+      border-color: var(--correct-color);
+      color: #065f46;
     }
 
-    .btn-hint {
-      padding: 8px 16px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      color: #FFF;
-      background-color: var(--hint-color);
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(155, 89, 182, 0.3);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .btn-hint:hover:not(:disabled) {
-      background-color: #8E44AD;
-      transform: translateY(-1px);
-    }
-
-    .btn-hint:disabled {
-      background-color: #CCC;
-      box-shadow: none;
-      cursor: not-allowed;
+    .option-btn.incorrect {
+      background-color: #fee2e2;
+      border-color: var(--incorrect-color);
+      color: #991b1b;
     }
 
     .canvas-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
     }
 
@@ -261,159 +224,197 @@
       position: relative;
       width: 200px;
       height: 200px;
-      border: 3px solid var(--primary-color);
-      border-radius: 8px;
-      background-color: #FFF;
-      background-image: 
-        linear-gradient(to right, #EFEFEF 1px, transparent 1px),
-        linear-gradient(to bottom, #EFEFEF 1px, transparent 1px);
-      background-size: 50% 50%;
-      background-position: center;
+      border: 3px dashed #cbd5e1;
+      border-radius: 12px;
+      background-color: #f8fafc;
       overflow: hidden;
     }
 
-    .guide-kanji {
+    .canvas-wrapper::before, .canvas-wrapper::after {
+      content: "";
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 140px;
-      font-family: "Hiragino Mincho ProN", "Yu Mincho", "游明朝", "MS Mincho", serif;
-      color: rgba(180, 180, 180, 0.35);
-      pointer-events: none;
-      user-select: none;
-      line-height: 1;
-      transition: opacity 0.2s ease;
+      background-color: #e2e8f0;
       z-index: 1;
     }
+    .canvas-wrapper::before { top: 50%; left: 0; width: 100%; height: 1px; }
+    .canvas-wrapper::after { left: 50%; top: 0; width: 1px; height: 100%; }
 
-    .guide-kanji.hidden-guide {
-      opacity: 0;
+    .guide-kanji {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 120px;
+      color: rgba(203, 213, 225, 0.35);
+      z-index: 2;
+      pointer-events: none;
+      visibility: hidden;
     }
 
     canvas {
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      z-index: 3;
       touch-action: none;
-      cursor: crosshair;
-      z-index: 2;
     }
 
     .canvas-tools {
       display: flex;
       gap: 8px;
       width: 100%;
-      max-width: 250px;
+      justify-content: center;
     }
 
     .btn-action {
-      flex: 1;
-      padding: 8px 4px;
+      padding: 8px 14px;
       font-size: 0.85rem;
       font-weight: bold;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background: #FFF;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      background-color: #e2e8f0;
+      color: #334155;
       transition: background 0.2s;
     }
 
+    .btn-action:hover { background-color: #cbd5e1; }
+
     .btn-action.active-toggle {
-      background-color: #E3F2FD;
-      border-color: var(--primary-color);
-      color: var(--primary-color);
+      background-color: #fef08a;
+      color: #854d0e;
     }
 
     .answer-reveal {
-      font-size: 2.5rem;
+      font-size: 1.8rem;
       font-weight: bold;
-      color: var(--secondary-color);
-      margin-top: 5px;
-      min-height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: var(--primary-color);
+      margin-top: 4px;
     }
 
     .auto-eval-box {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
-      margin-top: 4px;
-      margin-bottom: 6px;
-      padding: 8px 16px;
-      border-radius: 10px;
-      background-color: #F0F4F8;
+      justify-content: center;
+      gap: 12px;
       width: 100%;
-      max-width: 250px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
     }
 
     .auto-eval-score {
       font-size: 0.9rem;
       font-weight: bold;
-      color: #555;
+      color: #475569;
     }
 
     .auto-eval-badge {
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: bold;
-      padding: 4px 12px;
-      border-radius: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
     }
-
-    .auto-eval-badge.pass {
-      background-color: #D4EDDA;
-      color: var(--correct-color);
-    }
-
-    .auto-eval-badge.fail {
-      background-color: #F8D7DA;
-      color: var(--incorrect-color);
-    }
+    .auto-eval-badge.pass { background-color: #d1fae5; color: #047857; }
+    .auto-eval-badge.fail { background-color: #fef3c7; color: #b45309; }
 
     .self-check-btns {
       display: flex;
-      gap: 10px;
-      width: 100%;
-      max-width: 250px;
-      margin-top: 5px;
+      gap: 12px;
+      margin-top: 8px;
     }
 
     .btn-check {
-      flex: 1;
-      padding: 10px;
-      font-size: 1rem;
+      padding: 8px 16px;
+      font-size: 0.9rem;
       font-weight: bold;
-      border: none;
       border-radius: 8px;
+      border: none;
       cursor: pointer;
       color: white;
     }
-
     .btn-check.ok { background-color: var(--correct-color); }
     .btn-check.ng { background-color: var(--incorrect-color); }
 
-    .btn-next {
-      margin-top: 20px;
-      padding: 12px 30px;
-      font-size: 1rem;
+    .btn-hint {
+      margin-top: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
       font-weight: bold;
-      color: #FFF;
-      background-color: var(--secondary-color);
-      border: none;
-      border-radius: 25px;
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(245, 166, 35, 0.3);
-      transition: transform 0.1s;
     }
 
-    .btn-next:active {
-      transform: scale(0.98);
+    .btn-next {
+      margin-top: 16px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      font-weight: bold;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+      transition: transform 0.1s, background 0.2s;
     }
+    .btn-next:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .result-screen {
+      text-align: center;
+      width: 100%;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+    }
+
+    .result-medal {
+      font-size: 4rem;
+      margin: 12px 0;
+    }
+
+    .result-score {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .json-loader-bar {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: #64748b;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .json-input {
+      display: none;
+    }
+
+    .btn-json-file {
+      padding: 4px 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .hidden { display: none !important; }
 
     .feedback {
       position: absolute;
@@ -421,52 +422,14 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 5rem;
-      font-weight: bold;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.3s, transform 0.3s;
       z-index: 10;
     }
-
-    .feedback.correct {
-      color: var(--correct-color);
-      opacity: 0.9;
-    }
-
-    .feedback.incorrect {
-      color: var(--incorrect-color);
-      opacity: 0.9;
-    }
-
-    .result-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 20px 0;
-      text-align: center;
-    }
-
-    .result-medal {
-      font-size: 4rem;
-      margin: 10px 0;
-    }
-
-    .result-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary-color);
-      margin-bottom: 10px;
-    }
-
-    .result-score {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-    }
-
-    .hidden {
-      display: none !important;
+    .feedback.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1);
     }
   </style>
 </head>
@@ -474,39 +437,48 @@
 
   <header>
     <h1>小学校 漢字ドリル</h1>
+    <div class="status-bar">
+      <div class="status-item">
+        <span>⭐ すたー:</span>
+        <span id="stars-count">0</span>
+      </div>
+      <div class="status-item">
+        <span>📖 読みメダル:</span>
+        <span id="reading-medals-count">0</span>
+      </div>
+      <div class="status-item">
+        <span>✏️ 書きメダル:</span>
+        <span id="writing-medals-count">0</span>
+      </div>
+    </div>
   </header>
-
-  <div class="status-bar">
-    <div class="status-item">⭐ スター: <span id="star-count">0</span></div>
-    <div class="status-item">📖 読み: <span id="reading-medal-count">0</span>個</div>
-    <div class="status-item">✏️ 書き: <span id="writing-medal-count">0</span>個</div>
-  </div>
 
   <div class="controls-panel">
     <div class="control-group">
       <span class="control-label">がくねん:</span>
-      <div class="btn-group" id="grade-group">
-        <button class="btn-option active" data-value="1">1年生</button>
-        <button class="btn-option" data-value="2">2年生</button>
-      </div>
+      <select id="grade-select" class="select-option">
+        <option value="1">1年生</option>
+        <option value="2">2年生</option>
+        <option value="3">3年生</option>
+      </select>
     </div>
 
     <div class="control-group">
       <span class="control-label">がっき:</span>
-      <div class="btn-group" id="term-group">
-        <button class="btn-option active" data-value="all">すべて</button>
-        <button class="btn-option" data-value="1">1学期</button>
-        <button class="btn-option" data-value="2">2学期</button>
-        <button class="btn-option" data-value="3">3学期</button>
-      </div>
+      <select id="term-select" class="select-option">
+        <option value="all">すべて</option>
+        <option value="1">1学期</option>
+        <option value="2">2学期</option>
+        <option value="3">3学期</option>
+      </select>
     </div>
 
     <div class="control-group">
       <span class="control-label">もんだい:</span>
-      <div class="btn-group" id="mode-group">
-        <button class="btn-option active" data-value="reading">読みもんだい</button>
-        <button class="btn-option" data-value="writing">書きもんだい</button>
-      </div>
+      <select id="mode-select" class="select-option">
+        <option value="reading">読みもんだい</option>
+        <option value="writing">書きもんだい</option>
+      </select>
     </div>
   </div>
 
@@ -542,7 +514,7 @@
           <canvas id="paintCanvas" width="200" height="200"></canvas>
         </div>
         <div class="canvas-tools">
-          <button class="btn-action active-toggle" id="btn-toggle-guide" onclick="toggleGuide()">💡 おてほん ON</button>
+          <button class="btn-action" id="btn-toggle-guide" onclick="toggleGuide()">💡 おてほん OFF</button>
           <button class="btn-action" onclick="clearCanvas()">けす</button>
           <button class="btn-action" onclick="revealAnswer()">こたえあわせ</button>
         </div>
@@ -574,12 +546,19 @@
     <div class="feedback" id="feedback"></div>
   </div>
 
+  <div class="json-loader-bar">
+    <span>📁 kanji_data.json:</span>
+    <span id="json-status">読み込み中...</span>
+    <label class="btn-json-file">ファイル選択<input type="file" id="json-file-input" class="json-input" accept=".json"></label>
+  </div>
+
   <script>
     const QUIZ_LIMIT = 10;
 
-    const defaultData = {
+    // 内蔵バックアップデータ（kanji_data.json がロードできない場合のフォールバック）
+    const fallbackData = {
       1: [
-        { id: 101, term: 1, category: "単体", mode: "reading", question: "「山」の よみかたは？", options: ["やま", "川", "うみ", "そら"], answer: "やま" },
+        { id: 101, term: 1, category: "単体", mode: "reading", question: "「山」の よみかたは？", options: ["やま", "かわ", "うみ", "そら"], answer: "やま" },
         { id: 102, term: 1, category: "単体", mode: "writing", question: "「やま」を かんじで かこう！", options: [], answer: "山" },
         { id: 103, term: 2, category: "単体", mode: "reading", question: "「空」の よみかたは？", options: ["そら", "あめ", "くも", "かぜ"], answer: "そら" },
         { id: 104, term: 2, category: "単体", mode: "writing", question: "「そら」を かんじで かこう！", options: [], answer: "空" },
@@ -595,478 +574,486 @@
         { id: 222, term: 2, category: "単体", mode: "writing", question: "「ひがし」を かんじで かこう！", options: [], answer: "東" },
         { id: 223, term: 3, category: "単体", mode: "reading", question: "「光」の よみかたは？", options: ["ひかり", "あかり", "ほし", "かぜ"], answer: "ひかり" },
         { id: 224, term: 3, category: "単体", mode: "writing", question: "「ひかり」を かんじで かこう！", options: [], answer: "光" }
+      ],
+      3: [
+        { id: 301, term: 1, category: "単体", mode: "reading", question: "「表」の よみかたは？", options: ["おもて", "うら", "まえ", "あたま"], answer: "おもて" },
+        { id: 302, term: 1, category: "単体", mode: "writing", question: "「おもて」を かんじで かこう！", options: [], answer: "表" },
+        { id: 303, term: 2, category: "単体", mode: "reading", question: "「港」の よみかたは？", options: ["みなと", "うみ", "かわ", "すいどう"], answer: "みなと" },
+        { id: 304, term: 2, category: "単体", mode: "writing", question: "「みなと」を かんじで かこう！", options: [], answer: "港" },
+        { id: 305, term: 3, category: "単体", mode: "reading", question: "「感」の よみかたは？", options: ["かん", "おもい", "こころ", "きもち"], answer: "かん" },
+        { id: 306, term: 3, category: "単体", mode: "writing", question: "「かん（じる）」の かんじを かこう！", options: [], answer: "感" }
       ]
     };
+
+    let kanjiData = JSON.parse(JSON.stringify(fallbackData));
 
     let state = {
       grade: "1",
       term: "all",
       mode: "reading",
       questions: [],
-      quizSet: [],
       currentIndex: 0,
       score: 0,
-      totalStars: 0,
+      stars: 0,
       readingMedals: 0,
       writingMedals: 0,
       showGuide: false,
-      hintUsedCurrentQuestion: false
+      isDrawing: false
     };
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let canvas, ctx;
+    let audioCtx = null;
+
+    function loadSavedProgress() {
+      const savedStars = localStorage.getItem('kanji_stars');
+      const savedReadingMedals = localStorage.getItem('kanji_reading_medals');
+      const savedWritingMedals = localStorage.getItem('kanji_writing_medals');
+
+      if (savedStars !== null) state.stars = parseInt(savedStars, 10);
+      if (savedReadingMedals !== null) state.readingMedals = parseInt(savedReadingMedals, 10);
+      if (savedWritingMedals !== null) state.writingMedals = parseInt(savedWritingMedals, 10);
+    }
+
+    function saveProgress() {
+      localStorage.setItem('kanji_stars', state.stars);
+      localStorage.setItem('kanji_reading_medals', state.readingMedals);
+      localStorage.setItem('kanji_writing_medals', state.writingMedals);
+    }
+
+    function updateStatusDisplay() {
+      document.getElementById('stars-count').textContent = state.stars;
+      document.getElementById('reading-medals-count').textContent = state.readingMedals;
+      document.getElementById('writing-medals-count').textContent = state.writingMedals;
+    }
+
+    async function loadJsonData() {
+      const statusEl = document.getElementById('json-status');
+      try {
+        const response = await fetch('kanji_data.json');
+        if (!response.ok) throw new Error("HTTP error " + response.status);
+        const data = await response.json();
+        kanjiData = data;
+        statusEl.textContent = "自動読み込み完了 (JSON)";
+        statusEl.style.color = "#059669";
+      } catch (err) {
+        statusEl.textContent = "内蔵データ使用中";
+        statusEl.style.color = "#475569";
+      }
+      loadQuestionData();
+    }
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
 
     function playSound(type) {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (!audioCtx) return;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
+      const now = audioCtx.currentTime;
       if (type === 'correct') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(660, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'incorrect') {
+        osc.frequency.setValueAtTime(220, now); // A3
+        osc.frequency.setValueAtTime(196, now + 0.15); // G3
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
       } else if (type === 'clear') {
-        const now = audioCtx.currentTime;
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          o.connect(g);
-          g.connect(audioCtx.destination);
-          o.frequency.setValueAtTime(freq, now + idx * 0.1);
-          g.gain.setValueAtTime(0.2, now + idx * 0.1);
-          g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
-          o.start(now + idx * 0.1);
-          o.stop(now + idx * 0.1 + 0.3);
-        });
-      } else if (type === 'hint') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      } else {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.1);
+        osc.frequency.setValueAtTime(783.99, now + 0.2);
+        osc.frequency.setValueAtTime(1046.50, now + 0.3);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+        osc.start(now);
+        osc.stop(now + 0.6);
       }
     }
 
-    function updateStatusDisplay() {
-      document.getElementById('star-count').innerText = state.totalStars;
-      document.getElementById('reading-medal-count').innerText = state.readingMedals;
-      document.getElementById('writing-medal-count').innerText = state.writingMedals;
-    }
+    function loadQuestionData() {
+      const rawList = kanjiData[state.grade] || [];
+      let filtered = rawList.filter(item => item.mode === state.mode);
 
-    function loadSavedProgress() {
-      try {
-        const saved = localStorage.getItem('kanji_drill_progress');
-        if (saved) {
-          const data = JSON.parse(saved);
-          state.totalStars = data.totalStars || 0;
-          state.readingMedals = data.readingMedals || 0;
-          state.writingMedals = data.writingMedals || 0;
-        }
-      } catch (e) {
-        console.error('保存データの読み込みに失敗しました:', e);
-      }
-    }
-
-    function saveProgress() {
-      try {
-        const data = {
-          totalStars: state.totalStars,
-          readingMedals: state.readingMedals,
-          writingMedals: state.writingMedals
-        };
-        localStorage.setItem('kanji_drill_progress', JSON.stringify(data));
-      } catch (e) {
-        console.error('データの保存に失敗しました:', e);
-      }
-    }
-
-    async function loadQuestionData() {
-      const fileName = `questions_${state.grade}nen.json`;
-      try {
-        const response = await fetch(fileName);
-        if (!response.ok) throw new Error('File not found');
-        state.questions = await response.json();
-      } catch (e) {
-        state.questions = defaultData[state.grade] || [];
-      }
-      restartQuiz();
-    }
-
-    function restartQuiz() {
-      document.getElementById('quiz-screen').classList.remove('hidden');
-      document.getElementById('result-screen').classList.add('hidden');
-
-      let filtered = state.questions.filter(q => q.mode === state.mode);
       if (state.term !== "all") {
-        filtered = filtered.filter(q => q.term === parseInt(state.term));
+        filtered = filtered.filter(item => item.term === parseInt(state.term, 10));
       }
-      
-      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
-      state.quizSet = shuffled.slice(0, QUIZ_LIMIT);
+
+      for (let i = filtered.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+      }
+
+      state.questions = filtered.slice(0, QUIZ_LIMIT);
       state.currentIndex = 0;
       state.score = 0;
-      
-      updateStatusDisplay();
-      renderCurrentQuestion();
+
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+
+      if (state.questions.length === 0) {
+        document.getElementById('question-text').textContent = "該当する問題がありません";
+        document.getElementById('reading-area').classList.add('hidden');
+        document.getElementById('writing-area').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+      } else {
+        renderQuestion();
+      }
     }
 
-    function renderCurrentQuestion() {
-      const readingArea = document.getElementById('reading-area');
-      const writingArea = document.getElementById('writing-area');
-      const nextBtn = document.getElementById('next-btn');
-      const answerReveal = document.getElementById('answer-reveal');
-      const autoEvalBox = document.getElementById('auto-eval-box');
-      const selfCheckArea = document.getElementById('self-check-area');
-      const hintBtn = document.getElementById('hint-btn');
+    function renderQuestion() {
+      const current = state.questions[state.currentIndex];
+      const total = state.questions.length;
 
-      answerReveal.classList.add('hidden');
-      if (autoEvalBox) autoEvalBox.classList.add('hidden');
-      selfCheckArea.classList.add('hidden');
-      nextBtn.classList.add('hidden');
-      state.hintUsedCurrentQuestion = false;
-
-      const list = state.quizSet;
-      if (list.length === 0) {
-        document.getElementById('question-text').innerText = "もんだいが ありません";
-        document.getElementById('progress-tag').innerText = "0 / 0";
-        document.getElementById('progress-bar').style.width = "0%";
-        readingArea.classList.add('hidden');
-        writingArea.classList.add('hidden');
-        return;
-      }
-
-      const q = list[state.currentIndex];
-      document.getElementById('question-text').innerText = q.question;
-      document.getElementById('term-tag').innerText = `${q.term}学期`;
-      
-      const total = list.length;
-      const currentNum = state.currentIndex + 1;
-      document.getElementById('progress-tag').innerText = `${currentNum} / ${total}`;
-      document.getElementById('progress-bar').style.width = `${(currentNum / total) * 100}%`;
+      document.getElementById('term-tag').textContent = `${current.term}学期`;
+      document.getElementById('progress-tag').textContent = `${state.currentIndex + 1} / ${total}`;
+      document.getElementById('progress-bar').style.width = `${((state.currentIndex + 1) / total) * 100}%`;
+      document.getElementById('question-text').textContent = current.question;
+      document.getElementById('next-btn').classList.add('hidden');
 
       if (state.mode === 'reading') {
-        readingArea.classList.remove('hidden');
-        writingArea.classList.add('hidden');
-        
-        hintBtn.disabled = false;
-        hintBtn.innerText = "🪄 3たくにしぼる";
+        document.getElementById('reading-area').classList.remove('hidden');
+        document.getElementById('writing-area').classList.add('hidden');
 
-        const btns = readingArea.querySelectorAll('.option-btn');
-        const options = [...q.options].sort(() => Math.random() - 0.5);
-        btns.forEach((btn, idx) => {
-          btn.innerText = options[idx];
+        const optionBtns = document.querySelectorAll('.option-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        hintBtn.disabled = false;
+        hintBtn.style.opacity = '1';
+
+        optionBtns.forEach((btn, index) => {
+          btn.textContent = current.options[index];
+          btn.className = 'option-btn';
           btn.disabled = false;
-          btn.classList.remove('removed');
-          btn.style.backgroundColor = '#FFF';
         });
       } else {
-        readingArea.classList.add('hidden');
-        writingArea.classList.remove('hidden');
-        
-        const guideEl = document.getElementById('guide-kanji');
-        guideEl.innerText = q.answer;
-        updateGuideVisibility();
+        document.getElementById('reading-area').classList.add('hidden');
+        document.getElementById('writing-area').classList.remove('hidden');
+        document.getElementById('guide-kanji').textContent = current.answer;
+        document.getElementById('answer-reveal').classList.add('hidden');
+        document.getElementById('auto-eval-box').classList.add('hidden');
+        document.getElementById('self-check-area').classList.add('hidden');
 
+        state.showGuide = false;
+        updateGuideDisplay();
         clearCanvas();
       }
     }
 
-    function use3ChoiceHint() {
-      if (state.hintUsedCurrentQuestion) return;
+    function checkAnswer(selectedIndex) {
+      initAudio();
+      const current = state.questions[state.currentIndex];
+      const optionBtns = document.querySelectorAll('.option-btn');
+      const selectedBtn = optionBtns[selectedIndex];
 
-      const q = state.quizSet[state.currentIndex];
-      const btns = Array.from(document.querySelectorAll('.reading-container .option-btn'));
-      const incorrectBtns = btns.filter(btn => btn.innerText !== q.answer && !btn.classList.contains('removed'));
+      optionBtns.forEach(btn => btn.disabled = true);
 
-      if (incorrectBtns.length > 0) {
-        const targetBtn = incorrectBtns[Math.floor(Math.random() * incorrectBtns.length)];
-        targetBtn.classList.add('removed');
-        
-        state.hintUsedCurrentQuestion = true;
-        const hintBtn = document.getElementById('hint-btn');
-        hintBtn.disabled = true;
-        hintBtn.innerText = "✨ 3たくにしました";
-        playSound('hint');
-      }
-    }
-
-    function toggleGuide() {
-      state.showGuide = !state.showGuide;
-      updateGuideVisibility();
-    }
-
-    function updateGuideVisibility() {
-      const guideEl = document.getElementById('guide-kanji');
-      const toggleBtn = document.getElementById('btn-toggle-guide');
-
-      if (state.showGuide) {
-        guideEl.classList.remove('hidden-guide');
-        toggleBtn.innerText = '💡 おてほん ON';
-        toggleBtn.classList.add('active-toggle');
-      } else {
-        guideEl.classList.add('hidden-guide');
-        toggleBtn.innerText = '💡 おてほん OFF';
-        toggleBtn.classList.remove('active-toggle');
-      }
-    }
-
-    function checkAnswer(index) {
-      const q = state.quizSet[state.currentIndex];
-      const btns = document.querySelectorAll('.option-btn');
-      const selectedBtn = btns[index];
-
-      if (selectedBtn.innerText === q.answer) {
-        showFeedback(true);
-        playSound('correct');
-        selectedBtn.style.backgroundColor = '#D4EDDA';
-        btns.forEach(btn => btn.disabled = true);
-        document.getElementById('hint-btn').disabled = true;
-        state.score++;
-        addStar();
-        document.getElementById('next-btn').classList.remove('hidden');
-      } else {
-        showFeedback(false);
-        playSound('incorrect');
-        selectedBtn.style.backgroundColor = '#F8D7DA';
-      }
-    }
-
-    function evaluateDrawing(targetKanji) {
-      const width = canvas.width;
-      const height = canvas.height;
-
-      // オフスクリーンキャンバスで模範漢字を太線描画
-      const refCanvas = document.createElement('canvas');
-      refCanvas.width = width;
-      refCanvas.height = height;
-      const refCtx = refCanvas.getContext('2d');
-
-      refCtx.font = "135px 'Hiragino Mincho ProN', 'Yu Mincho', serif";
-      refCtx.textAlign = 'center';
-      refCtx.textBaseline = 'middle';
-      refCtx.fillStyle = '#000';
-      refCtx.strokeStyle = '#000';
-      refCtx.lineWidth = 18;
-      refCtx.lineJoin = 'round';
-      refCtx.strokeText(targetKanji, width / 2, height / 2);
-      refCtx.fillText(targetKanji, width / 2, height / 2);
-
-      // ピクセルデータの取得と一致計算
-      const userImgData = ctx.getImageData(0, 0, width, height).data;
-      const refImgData = refCtx.getImageData(0, 0, width, height).data;
-
-      let refPixels = 0;
-      let userPixels = 0;
-      let overlapPixels = 0;
-
-      for (let i = 3; i < userImgData.length; i += 4) {
-        const hasUser = userImgData[i] > 30;
-        const hasRef = refImgData[i] > 30;
-
-        if (hasRef) refPixels++;
-        if (hasUser) userPixels++;
-        if (hasUser && hasRef) overlapPixels++;
-      }
-
-      if (userPixels < 60) {
-        return { score: 0, isPass: false, empty: true };
-      }
-
-      const coverage = overlapPixels / Math.max(refPixels, 1);
-      const precision = overlapPixels / Math.max(userPixels, 1);
-
-      // カバー率と精度を総合して一致度スコア（0-100%）を算出
-      const score = Math.min(100, Math.round((coverage * 0.65 + precision * 0.35) * 100));
-      const isPass = score >= 40 && coverage >= 0.30;
-
-      return { score, isPass, empty: false };
-    }
-
-    function revealAnswer() {
-      const q = state.quizSet[state.currentIndex];
-      const revealEl = document.getElementById('answer-reveal');
-      revealEl.innerText = q.answer;
-      revealEl.classList.remove('hidden');
-
-      // 自動判定処理の実行
-      const evalResult = evaluateDrawing(q.answer);
-      const autoEvalBox = document.getElementById('auto-eval-box');
-      const scoreEl = document.getElementById('auto-eval-score');
-      const badgeEl = document.getElementById('auto-eval-badge');
-
-      if (evalResult.empty) {
-        scoreEl.innerText = "🎯 なにも かかれていません";
-        badgeEl.innerText = "✕ もういちど かいてみよう";
-        badgeEl.className = "auto-eval-badge fail";
-      } else {
-        scoreEl.innerText = `🎯 いっちど: ${evalResult.score}%`;
-        if (evalResult.isPass) {
-          badgeEl.innerText = "⭕ たぶん だいじょうぶ！";
-          badgeEl.className = "auto-eval-badge pass";
-        } else {
-          badgeEl.innerText = "✕ かたちを かくにんしよう";
-          badgeEl.className = "auto-eval-badge fail";
-        }
-      }
-
-      autoEvalBox.classList.remove('hidden');
-      document.getElementById('self-check-area').classList.remove('hidden');
-    }
-
-    function recordWritingResult(isCorrect) {
-      document.getElementById('self-check-area').classList.add('hidden');
-      if (isCorrect) {
-        showFeedback(true);
+      if (current.options[selectedIndex] === current.answer) {
+        selectedBtn.classList.add('correct');
+        showFeedback('⭕');
         playSound('correct');
         state.score++;
-        addStar();
+        state.stars++;
+        saveProgress();
+        updateStatusDisplay();
       } else {
-        showFeedback(false);
+        selectedBtn.classList.add('incorrect');
+        showFeedback('✕');
         playSound('incorrect');
+        optionBtns.forEach(btn => {
+          if (btn.textContent === current.answer) {
+            btn.classList.add('correct');
+          }
+        });
       }
+
       document.getElementById('next-btn').classList.remove('hidden');
     }
 
-    function addStar() {
-      state.totalStars++;
-      updateStatusDisplay();
+    function use3ChoiceHint() {
+      const current = state.questions[state.currentIndex];
+      const optionBtns = document.querySelectorAll('.option-btn');
+      const wrongIndices = [];
+
+      current.options.forEach((opt, idx) => {
+        if (opt !== current.answer) wrongIndices.push(idx);
+      });
+
+      const removeIdx = wrongIndices[Math.floor(Math.random() * wrongIndices.length)];
+      optionBtns[removeIdx].disabled = true;
+      optionBtns[removeIdx].style.opacity = '0.3';
+
+      const hintBtn = document.getElementById('hint-btn');
+      hintBtn.disabled = true;
+      hintBtn.style.opacity = '0.5';
     }
 
-    function nextQuestion() {
-      state.currentIndex++;
-      if (state.currentIndex >= state.quizSet.length) {
-        showResult();
+    function evaluateDrawing() {
+      const current = state.questions[state.currentIndex];
+      const width = canvas.width;
+      const height = canvas.height;
+
+      const userImgData = ctx.getImageData(0, 0, width, height);
+      const userPixels = userImgData.data;
+
+      let userDrawCount = 0;
+      for (let i = 3; i < userPixels.length; i += 4) {
+        if (userPixels[i] > 30) userDrawCount++;
+      }
+
+      if (userDrawCount < 100) {
+        return { score: 0, empty: true };
+      }
+
+      const guideCanvas = document.createElement('canvas');
+      guideCanvas.width = width;
+      guideCanvas.height = height;
+      const gCtx = guideCanvas.getContext('2d');
+
+      gCtx.font = 'bold 120px "M PLUS Rounded 1c", sans-serif';
+      gCtx.textAlign = 'center';
+      gCtx.textBaseline = 'middle';
+      gCtx.fillStyle = '#000000';
+      gCtx.lineWidth = 28;
+      gCtx.strokeStyle = '#000000';
+      gCtx.lineJoin = 'round';
+      gCtx.strokeText(current.answer, width / 2, height / 2 + 5);
+      gCtx.fillText(current.answer, width / 2, height / 2 + 5);
+
+      const guideImgData = gCtx.getImageData(0, 0, width, height);
+      const guidePixels = guideImgData.data;
+
+      let guideDrawCount = 0;
+      let hitCount = 0;
+
+      for (let i = 3; i < guidePixels.length; i += 4) {
+        const isGuide = guidePixels[i] > 30;
+        const isUser = userPixels[i] > 30;
+
+        if (isGuide) guideDrawCount++;
+        if (isGuide && isUser) hitCount++;
+      }
+
+      const coverage = (hitCount / Math.max(1, guideDrawCount));
+      const scorePercent = Math.min(100, Math.round(coverage * 125));
+
+      return { score: scorePercent, empty: false };
+    }
+
+    function revealAnswer() {
+      initAudio();
+      const current = state.questions[state.currentIndex];
+      const revealEl = document.getElementById('answer-reveal');
+      revealEl.textContent = `正解: ${current.answer}`;
+      revealEl.classList.remove('hidden');
+
+      const evalBox = document.getElementById('auto-eval-box');
+      const evalScoreEl = document.getElementById('auto-eval-score');
+      const evalBadgeEl = document.getElementById('auto-eval-badge');
+
+      const result = evaluateDrawing();
+
+      evalBox.classList.remove('hidden');
+
+      if (result.empty) {
+        evalScoreEl.textContent = "🎯 なにも かかれていません";
+        evalBadgeEl.textContent = "✕ 未入力";
+        evalBadgeEl.className = "auto-eval-badge fail";
+        document.getElementById('self-check-area').classList.remove('hidden');
       } else {
-        renderCurrentQuestion();
+        evalScoreEl.textContent = `🎯 いっちど: ${result.score}%`;
+
+        if (result.score >= 80) {
+          evalBadgeEl.textContent = "⭕ だいせいかい！";
+          evalBadgeEl.className = "auto-eval-badge pass";
+          recordWritingResult(true);
+        } else {
+          evalBadgeEl.textContent = "もうすこし！";
+          evalBadgeEl.className = "auto-eval-badge fail";
+          document.getElementById('self-check-area').classList.remove('hidden');
+        }
       }
     }
 
-    function showResult() {
-      document.getElementById('quiz-screen').classList.add('hidden');
-      const resultScreen = document.getElementById('result-screen');
-      resultScreen.classList.remove('hidden');
-
-      const total = state.quizSet.length;
-      const score = state.score;
-      let medal = '🥉';
-      if (score === total) {
-        medal = '🥇';
-        if (state.mode === 'reading') {
-          state.readingMedals++;
-        } else {
-          state.writingMedals++;
-        }
+    function recordWritingResult(isOk) {
+      if (isOk) {
+        showFeedback('⭕');
+        playSound('correct');
+        state.score++;
+        state.stars++;
         saveProgress();
         updateStatusDisplay();
-      } else if (score >= total * 0.7) {
-        medal = '🥈';
+      } else {
+        showFeedback('✕');
+        playSound('incorrect');
       }
 
-      document.getElementById('result-medal').innerText = medal;
-      document.getElementById('result-score').innerText = `${total}問ちゅう ${score}問 せいかい！`;
-      playSound('clear');
+      document.getElementById('self-check-area').classList.add('hidden');
+      document.getElementById('next-btn').classList.remove('hidden');
     }
-
-    function showFeedback(isCorrect) {
-      const fb = document.getElementById('feedback');
-      fb.innerText = isCorrect ? '〇' : '✕';
-      fb.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
-      setTimeout(() => {
-        fb.className = 'feedback';
-      }, 800);
-    }
-
-    const canvas = document.getElementById('paintCanvas');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
 
     function initCanvas() {
-      ctx.lineWidth = 8;
+      canvas = document.getElementById('paintCanvas');
+      ctx = canvas.getContext('2d');
+
+      ctx.lineWidth = 10;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.strokeStyle = '#333';
+      ctx.strokeStyle = '#1e293b';
 
-      function getPos(e) {
+      const getPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return {
-          x: (clientX - rect.left) * (canvas.width / rect.width),
-          y: (clientY - rect.top) * (canvas.height / rect.height)
+          x: clientX - rect.left,
+          y: clientY - rect.top
         };
-      }
+      };
 
-      function startDraw(e) {
-        isDrawing = true;
+      const startDrawing = (e) => {
+        state.isDrawing = true;
         const pos = getPos(e);
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
-      }
+      };
 
-      function draw(e) {
-        if (!isDrawing) return;
-        e.preventDefault();
+      const draw = (e) => {
+        if (!state.isDrawing) return;
         const pos = getPos(e);
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
-      }
+      };
 
-      function stopDraw() { isDrawing = false; }
+      const stopDrawing = () => {
+        state.isDrawing = false;
+      };
 
-      canvas.addEventListener('mousedown', startDraw);
+      canvas.addEventListener('mousedown', startDrawing);
       canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('mouseup', stopDraw);
-      canvas.addEventListener('mouseleave', stopDraw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mouseleave', stopDrawing);
 
-      canvas.addEventListener('touchstart', startDraw, { passive: false });
-      canvas.addEventListener('touchmove', draw, { passive: false });
-      canvas.addEventListener('touchend', stopDraw);
+      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); });
+      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+      canvas.addEventListener('touchend', stopDrawing);
     }
 
     function clearCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('answer-reveal').classList.add('hidden');
+      document.getElementById('auto-eval-box').classList.add('hidden');
+      document.getElementById('self-check-area').classList.add('hidden');
+      document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    function toggleGuide() {
+      state.showGuide = !state.showGuide;
+      updateGuideDisplay();
+    }
+
+    function updateGuideDisplay() {
+      const guideEl = document.getElementById('guide-kanji');
+      const toggleBtn = document.getElementById('btn-toggle-guide');
+      if (state.showGuide) {
+        guideEl.style.visibility = 'visible';
+        toggleBtn.textContent = '💡 おてほん ON';
+        toggleBtn.classList.add('active-toggle');
+      } else {
+        guideEl.style.visibility = 'hidden';
+        toggleBtn.textContent = '💡 おてほん OFF';
+        toggleBtn.classList.remove('active-toggle');
+      }
+    }
+
+    function nextQuestion() {
+      state.currentIndex++;
+      if (state.currentIndex >= state.questions.length) {
+        showResults();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz-screen').classList.add('hidden');
+      const resultScreen = document.getElementById('result-screen');
+      resultScreen.classList.remove('hidden');
+
+      const total = state.questions.length;
+      document.getElementById('result-score').textContent = `${total}問ちゅう ${state.score}問 せいかい！`;
+
+      const medalEl = document.getElementById('result-medal');
+      if (state.score === total) {
+        medalEl.textContent = "🥇";
+        playSound('clear');
+        if (state.mode === 'reading') state.readingMedals++;
+        else state.writingMedals++;
+        saveProgress();
+        updateStatusDisplay();
+      } else if (state.score >= total * 0.7) {
+        medalEl.textContent = "🥈";
+      } else {
+        medalEl.textContent = "🥉";
+      }
+    }
+
+    function restartQuiz() {
+      loadQuestionData();
+    }
+
+    function showFeedback(symbol) {
+      const fb = document.getElementById('feedback');
+      fb.textContent = symbol;
+      fb.classList.add('show');
+      setTimeout(() => {
+        fb.classList.remove('show');
+      }, 800);
     }
 
     function setupUIEvents() {
-      document.getElementById('grade-group').addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-          document.querySelectorAll('#grade-group .btn-option').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          state.grade = e.target.getAttribute('data-value');
-          loadQuestionData();
-        }
+      document.getElementById('grade-select').addEventListener('change', (e) => {
+        state.grade = e.target.value;
+        loadQuestionData();
       });
 
-      document.getElementById('term-group').addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-          document.querySelectorAll('#term-group .btn-option').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          state.term = e.target.getAttribute('data-value');
-          restartQuiz();
-        }
+      document.getElementById('term-select').addEventListener('change', (e) => {
+        state.term = e.target.value;
+        restartQuiz();
       });
 
-      document.getElementById('mode-group').addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-          document.querySelectorAll('#mode-group .btn-option').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          state.mode = e.target.getAttribute('data-value');
-          restartQuiz();
-        }
+      document.getElementById('mode-select').addEventListener('change', (e) => {
+        state.mode = e.target.value;
+        restartQuiz();
+      });
+
+      document.getElementById('json-file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const data = JSON.parse(evt.target.result);
+            kanjiData = data;
+            const statusEl = document.getElementById('json-status');
+            statusEl.textContent = "ファイル読み込み完了";
+            statusEl.style.color = "#059669";
+            loadQuestionData();
+          } catch (err) {
+            alert("JSONファイルの形式が正しくありません");
+          }
+        };
+        reader.readAsText(file);
       });
     }
 
@@ -1075,7 +1062,7 @@
       setupUIEvents();
       loadSavedProgress();
       updateStatusDisplay();
-      loadQuestionData();
+      loadJsonData();
     };
   </script>
 </body>
