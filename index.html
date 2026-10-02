@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>小学校 漢字ドリル（1年生・2年生対応）</title>
+  <!-- ファビコン設定 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+  
   <style>
     :root {
       --primary-color: #4A90E2;
@@ -15,6 +18,7 @@
       --correct-color: #2ECC71;
       --incorrect-color: #E74C3C;
       --gold-color: #FFD700;
+      --hint-color: #9B59B6;
     }
 
     * {
@@ -171,11 +175,20 @@
       font-size: 1.3rem;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       min-height: 2.6rem;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    /* 読み問題用コンテナ & 選択肢 */
+    .reading-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
     }
 
     .options-grid {
@@ -183,7 +196,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       width: 100%;
-      margin-top: 10px;
     }
 
     .option-btn {
@@ -197,9 +209,47 @@
       font-weight: bold;
     }
 
-    .option-btn:hover {
+    .option-btn:hover:not(:disabled) {
       border-color: var(--primary-color);
       background-color: #F0F7FF;
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+    }
+
+    .option-btn.removed {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* お助け（ヒント）ボタン */
+    .btn-hint {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #FFF;
+      background-color: var(--hint-color);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(155, 89, 182, 0.3);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-hint:hover:not(:disabled) {
+      background-color: #8E44AD;
+      transform: translateY(-1px);
+    }
+
+    .btn-hint:disabled {
+      background-color: #CCC;
+      box-shadow: none;
+      cursor: not-allowed;
     }
 
     .canvas-container {
@@ -446,11 +496,17 @@
       <div class="question-title" id="question-text">もんだいを よみこんでいます...</div>
 
       <!-- 読み問題エリア -->
-      <div class="options-grid hidden" id="reading-area">
-        <button class="option-btn" onclick="checkAnswer(0)"></button>
-        <button class="option-btn" onclick="checkAnswer(1)"></button>
-        <button class="option-btn" onclick="checkAnswer(2)"></button>
-        <button class="option-btn" onclick="checkAnswer(3)"></button>
+      <div class="reading-container hidden" id="reading-area">
+        <div class="options-grid">
+          <button class="option-btn" onclick="checkAnswer(0)"></button>
+          <button class="option-btn" onclick="checkAnswer(1)"></button>
+          <button class="option-btn" onclick="checkAnswer(2)"></button>
+          <button class="option-btn" onclick="checkAnswer(3)"></button>
+        </div>
+        <!-- 3択に絞るお助けヒントボタン -->
+        <button class="btn-hint" id="hint-btn" onclick="use3ChoiceHint()">
+          🪄 3たくにしぼる
+        </button>
       </div>
 
       <!-- 書き問題エリア -->
@@ -495,16 +551,23 @@
         { id: 101, term: 1, category: "単体", mode: "reading", question: "「山」の よみかたは？", options: ["やま", "川", "うみ", "そら"], answer: "やま" },
         { id: 102, term: 1, category: "単体", mode: "writing", question: "「やま」を かんじで かこう！", options: [], answer: "山" },
         { id: 103, term: 2, category: "単体", mode: "reading", question: "「空」の よみかたは？", options: ["そら", "あめ", "くも", "かぜ"], answer: "そら" },
-        { id: 104, term: 2, category: "単体", mode: "writing", question: "「そら」を かんじで かこう！", options: [], answer: "空" }
+        { id: 104, term: 2, category: "単体", mode: "writing", question: "「そら」を かんじで かこう！", options: [], answer: "空" },
+        { id: 105, term: 1, category: "単体", mode: "reading", question: "「川」の よみかたは？", options: ["かわ", "やま", "うみ", "いけ"], answer: "かわ" },
+        { id: 106, term: 1, category: "単体", mode: "writing", question: "「かわ」を かんじで かこう！", options: [], answer: "川" },
+        { id: 107, term: 3, category: "単体", mode: "reading", question: "「木」の よみかたは？", options: ["き", "はな", "くさ", "もり"], answer: "き" },
+        { id: 108, term: 3, category: "単体", mode: "writing", question: "「き」を かんじで かこう！", options: [], answer: "木" }
       ],
       2: [
         { id: 201, term: 1, category: "単体", mode: "reading", question: "「数」の よみかたは？", options: ["かず", "かぞえる", "すう", "さつ"], answer: "かず" },
         { id: 202, term: 1, category: "単体", mode: "writing", question: "「かず」を かんじで かこう！", options: [], answer: "数" },
         { id: 221, term: 2, category: "単体", mode: "reading", question: "「東」の よみかたは？", options: ["ひがし", "にし", "みなみ", "きた"], answer: "ひがし" },
-        { id: 222, term: 2, category: "単体", mode: "writing", question: "「ひがし」を かんじで かこう！", options: [], answer: "東" }
+        { id: 222, term: 2, category: "単体", mode: "writing", question: "「ひがし」を かんじで かこう！", options: [], answer: "東" },
+        { id: 223, term: 3, category: "単体", mode: "reading", question: "「光」の よみかたは？", options: ["ひかり", "あかり", "ほし", "かぜ"], answer: "ひかり" },
+        { id: 224, term: 3, category: "単体", mode: "writing", question: "「ひかり」を かんじで かこう！", options: [], answer: "光" }
       ]
     };
 
+    // グローバル状態 (スターとメダルは設定変更でもリセットされないよう保持)
     let state = {
       grade: "1",
       term: "all",
@@ -515,9 +578,11 @@
       score: 0,
       totalStars: 0,
       totalMedals: 0,
-      showGuide: true
+      showGuide: true,
+      hintUsedCurrentQuestion: false
     };
 
+    // 音声コンテキスト
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -548,6 +613,14 @@
           o.start(now + idx * 0.1);
           o.stop(now + idx * 0.1 + 0.3);
         });
+      } else if (type === 'hint') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
       } else {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(150, audioCtx.currentTime);
@@ -556,6 +629,12 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.2);
       }
+    }
+
+    // ステータス表示（スター・メダル）の同期更新
+    function updateStatusDisplay() {
+      document.getElementById('star-count').innerText = state.totalStars;
+      document.getElementById('medal-count').innerText = state.totalMedals;
     }
 
     async function loadQuestionData() {
@@ -584,6 +663,7 @@
       state.currentIndex = 0;
       state.score = 0;
       
+      updateStatusDisplay();
       renderCurrentQuestion();
     }
 
@@ -593,10 +673,12 @@
       const nextBtn = document.getElementById('next-btn');
       const answerReveal = document.getElementById('answer-reveal');
       const selfCheckArea = document.getElementById('self-check-area');
+      const hintBtn = document.getElementById('hint-btn');
 
       answerReveal.classList.add('hidden');
       selfCheckArea.classList.add('hidden');
       nextBtn.classList.add('hidden');
+      state.hintUsedCurrentQuestion = false;
 
       const list = state.quizSet;
       if (list.length === 0) {
@@ -621,11 +703,16 @@
         readingArea.classList.remove('hidden');
         writingArea.classList.add('hidden');
         
+        // ヒントボタンのリセット
+        hintBtn.disabled = false;
+        hintBtn.innerText = "🪄 3たくにしぼる";
+
         const btns = readingArea.querySelectorAll('.option-btn');
         const options = [...q.options].sort(() => Math.random() - 0.5);
         btns.forEach((btn, idx) => {
           btn.innerText = options[idx];
           btn.disabled = false;
+          btn.classList.remove('removed');
           btn.style.backgroundColor = '#FFF';
         });
       } else {
@@ -638,6 +725,29 @@
         updateGuideVisibility();
 
         clearCanvas();
+      }
+    }
+
+    // 4択から不正解を1つ消して3択にするヒント機能
+    function use3ChoiceHint() {
+      if (state.hintUsedCurrentQuestion) return;
+
+      const q = state.quizSet[state.currentIndex];
+      const btns = Array.from(document.querySelectorAll('.reading-container .option-btn'));
+      
+      // 正解以外のボタン（不正解の選択肢）を抽出
+      const incorrectBtns = btns.filter(btn => btn.innerText !== q.answer && !btn.classList.contains('removed'));
+
+      if (incorrectBtns.length > 0) {
+        // ランダムに1つ不正解肢を選んで非表示化
+        const targetBtn = incorrectBtns[Math.floor(Math.random() * incorrectBtns.length)];
+        targetBtn.classList.add('removed');
+        
+        state.hintUsedCurrentQuestion = true;
+        const hintBtn = document.getElementById('hint-btn');
+        hintBtn.disabled = true;
+        hintBtn.innerText = "✨ 3たくにしました";
+        playSound('hint');
       }
     }
 
@@ -672,6 +782,7 @@
         playSound('correct');
         selectedBtn.style.backgroundColor = '#D4EDDA';
         btns.forEach(btn => btn.disabled = true);
+        document.getElementById('hint-btn').disabled = true;
         state.score++;
         addStar();
         document.getElementById('next-btn').classList.remove('hidden');
@@ -706,7 +817,7 @@
 
     function addStar() {
       state.totalStars++;
-      document.getElementById('star-count').innerText = state.totalStars;
+      updateStatusDisplay();
     }
 
     function nextQuestion() {
@@ -729,7 +840,7 @@
       if (score === total) {
         medal = '🥇';
         state.totalMedals++;
-        document.getElementById('medal-count').innerText = state.totalMedals;
+        updateStatusDisplay();
       } else if (score >= total * 0.7) {
         medal = '🥈';
       }
