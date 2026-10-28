@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -690,6 +690,12 @@
             redrawCanvasFromHistory();
         }
 
+        function getCanvasStrokeWidth() {
+            const rect = canvas.getBoundingClientRect();
+            const scale = Math.max(1, canvas.width / Math.max(rect.width, 1));
+            return Math.max(6, Math.min(12, 10 / scale));
+        }
+
         function getCanvasCoords(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -706,7 +712,7 @@
             const pos = getCanvasCoords(e);
             currentStroke = [pos];
 
-            ctx.lineWidth = 20; // Internal buffer thickness
+            ctx.lineWidth = getCanvasStrokeWidth();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#1e293b';
@@ -757,7 +763,7 @@
 
         function redrawCanvasFromHistory() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 20;
+            ctx.lineWidth = getCanvasStrokeWidth();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#1e293b';
